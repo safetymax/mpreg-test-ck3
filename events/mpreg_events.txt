@@ -521,31 +521,38 @@ mpreg.0007 = {
 		remove_trait = mp_pregnant
 		remove_variable = mpreg_months
 		remove_variable = mpreg_ss_days
-		# Delayed (not immediate) on purpose -- leading theory for why the
-		# naming widget didn't appear in a real test: its is_shown trigger
-		# (allow_naming_on_birth_of_child_trigger) checks
-		# is_close_family_of, and vanilla's own version of this widget only
-		# ever fires from on_birth_mother, an engine-native lifecycle point
-		# reached well after a real birth's family data has settled. Our
-		# own create_character call happened in the exact same script tick
-		# as firing the notification, with zero settling time. A persistent
-		# variable (not scope:mpreg_child, a temporary scope) carries the
-		# child reference across the delay -- temporary scopes are not
-		# confirmed to survive a delayed trigger_event (Lesson 13/16's
-		# caution); mpreg.0008 dereferences it once into a scope on its own
-		# end, same one-time-dereference pattern as Lesson 20.
-		set_variable = { name = mpreg_ss_child value = scope:mpreg_child }
-		trigger_event = { id = mpreg.0008 days = 1 }
+		# Lesson 29: fires immediately now, not delayed by a day like it
+		# used to. The 1-day delay (and the persistent mpreg_ss_child
+		# variable that existed only to survive it) was built on a theory
+		# from Lesson 25 that the naming widget needed time for the
+		# child's family data to "settle" -- that theory was already
+		# proven wrong by Lesson 26 (the real cause was the parentage
+		# bug, fixed by switching mother= to father=), but the delay
+		# itself never got reverted afterward. A live v0.33 test found
+		# the notification popup wasn't appearing at all anymore (not
+		# just the widget) -- root cause not confirmed with certainty,
+		# but the delayed design is strictly riskier than it needs to be
+		# regardless: it re-derives scope:mpreg_child a full day later
+		# through a persistent variable, instead of just handing off the
+		# still-valid scope:mpreg_child directly. Vanilla's own
+		# equivalent chain proves the safer pattern is real: birth.0001
+		# fires birth.1001 with a bare `trigger_event = birth.1001`, no
+		# delay, in the exact same immediate block, and birth.1001 goes
+		# on to use scope:child directly without ever re-deriving it --
+		# scope carryover across a same-tick trigger_event chain is
+		# exactly how vanilla's entire birth-flavor system works, not a
+		# guess. Matching that pattern here removes the delay, the
+		# persistent variable, and the later re-derivation in one pass.
+		trigger_event = mpreg.0008
 	}
 }
 
 # Simple visible birth notification (per design decision: not vanilla's full
 # birth.0001 flavor yet, that's deferred -- see README). root = the carrier.
-# Fires 1 day after mpreg.0007 (see that event's own comment for why) --
-# scope:mpreg_child is re-derived from var:mpreg_ss_child in this event's
-# own immediate block (which runs before title/desc/portraits/widgets are
-# evaluated, the same reason vanilla events universally use immediate for
-# this), not carried over as a temporary scope.
+# Fires immediately from mpreg.0007 now, not delayed by a day (Lesson 29) --
+# scope:mpreg_child carries straight over from mpreg.0007's own immediate,
+# the same same-tick scope-carryover pattern vanilla's own birth.0001 ->
+# birth.1001 chain relies on. No re-derivation needed here anymore.
 #
 # Naming widget confirmed real and verbatim from vanilla's own birth.1001
 # (events/birth_events.txt) -- gui/container/controller field names and the
@@ -553,20 +560,18 @@ mpreg.0007 = {
 # (scope:child -> scope:mpreg_child, matching this file's own convention).
 # allow_naming_on_birth_of_child_trigger (common/scripted_triggers/00_birth_triggers.txt:13)
 # already requires is_ai = no and is_close_family_of = $CHILD$ on whoever
-# it's evaluated on (root here) -- root = the carrier, and create_character's
-# father = root (mpreg.0007, as of Lesson 26 -- see that event's own header
-# for why this changed from mother = root) establishes that family
-# relationship, so no extra guard is needed here. This widget not
-# appearing was very likely downstream of the same parent-recognition
-# problem Lesson 26 addresses -- if that's fixed, this should follow.
+# it's evaluated on (root here) -- root = the carrier, and this widget only
+# actually shows for root when root is also the recorded father. Since
+# Lesson 27, that's not guaranteed anymore (the higher-titled parent gets
+# `father`, which may be the other father instead) -- see Lesson 28 and
+# README Section 4 for that known, accepted gap. When root IS the recorded
+# father, create_character's father = root (mpreg.0007) establishes the
+# family relationship and no extra guard is needed here.
 mpreg.0008 = {
 	type = character_event
 	title = mpreg_birth_notification_title
 	desc = mpreg_birth_notification_desc
 	theme = pregnancy
-	immediate = {
-		var:mpreg_ss_child = { save_scope_as = mpreg_child }
-	}
 	left_portrait = {
 		character = root
 		animation = happiness
@@ -588,6 +593,5 @@ mpreg.0008 = {
 	}
 	option = {
 		name = mpreg_birth_notification_confirm
-		remove_variable = mpreg_ss_child
 	}
 }
