@@ -1,8 +1,8 @@
-# MPreg Test: Male Pregnancy for Crusader Kings III
+# MPREG - Male Pregnancy for Crusader Kings III
 
-As far as we know, this is the first working male pregnancy mod for CK3. Men can be flagged as carriers, conceive, visibly grow, and give birth, with real vanilla same-sex marriage support built in. It's an early beta and it's still actively being worked on, so there are some known issues. Please read through this before installing.
+As far as we know, this is the first working male pregnancy mod for CK3. Men can be flagged as carriers, conceive, visibly grow, and give birth, with real vanilla same-sex marriage support built in. It's a first release and still actively being worked on, so there are some known issues. Please read through this before installing.
 
-Current version: **0.37**
+Current version: **1.0**
 
 ## What this actually does
 
@@ -21,9 +21,9 @@ This mod lets a male character carry and give birth to a child. Not as a reskinn
 3. Enable it in the CK3 launcher's playset like any other mod.
 4. Enabling this mod turns on the vanilla `accepted_same_sex_marriage` game rule by default, see Compatibility notes below.
 
-## Beta status, please read before installing
+## Known issues, please read before installing
 
-This is an early beta, not a finished mod. A few things to know going in:
+This is a first release, not a finished, feature-complete mod. A few things to know going in:
 
 - **Clothing doesn't fully adjust.** A pregnant male character is forced into a state resembling vanilla's own "no clothes" look, but legwear currently stays on. There's no dedicated maternity clothing yet. That's a known, deliberate trade-off for now, not an oversight.
 - **This is actively being developed and will have bugs.** Several real ones have already been found and fixed by testing in a live game, and more are likely, especially around edge cases (a character in two overlapping relationships, a parent dying mid-pregnancy, and similar). If something looks broken, please open an issue.

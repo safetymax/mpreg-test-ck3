@@ -1,7 +1,7 @@
-﻿version="0.37"
+﻿version="1.0"
 tags={
     "Gameplay"
     "Graphics"
 }
-name="MPreg Test v0.37"
+name="MPREG - Male Pregnancy"
 supported_version="1.19.0.6"

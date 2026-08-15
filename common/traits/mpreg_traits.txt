@@ -1,5 +1,5 @@
 ﻿##############################################################################
-# Male Pregnancy QoL -- Traits
+# MPREG - Male Pregnancy -- Traits
 # File: common/traits/mpreg_traits.txt
 #
 # Two traits: mp_pregnant (drives the pregnancy portrait/stage system) and

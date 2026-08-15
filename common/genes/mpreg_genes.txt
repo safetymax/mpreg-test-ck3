@@ -1,5 +1,5 @@
 ﻿##############################################################################
-# Male Pregnancy QoL -- Genes
+# MPREG - Male Pregnancy -- Genes
 # File: common/genes/mpreg_genes.txt
 #
 # CONFIRMED against the real vanilla file (08_genes_special_visual_traits.txt):

@@ -1,5 +1,5 @@
 ﻿##############################################################################
-# Male Pregnancy QoL -- Marriage trigger override
+# MPREG - Male Pregnancy -- Marriage trigger override
 # File: common/scripted_triggers/mpreg_marriage_triggers.txt
 #
 # Full verbatim redeclaration of vanilla's real "allowed_to_marry_same_sex_trigger"

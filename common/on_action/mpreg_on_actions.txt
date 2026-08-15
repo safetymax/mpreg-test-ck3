@@ -1,5 +1,5 @@
 ﻿##############################################################################
-# Male Pregnancy QoL -- on_action hooks
+# MPREG - Male Pregnancy -- on_action hooks
 # File: common/on_action/mpreg_on_actions.txt
 #
 # All four blocks below reopen real vanilla on_actions and add to their

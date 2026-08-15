@@ -1,5 +1,5 @@
 ﻿##############################################################################
-# Male Pregnancy QoL -- Force/Forbid Carrier interactions
+# MPREG - Male Pregnancy -- Force/Forbid Carrier interactions
 # File: common/character_interactions/mpreg_carrier_interactions.txt
 #
 # First-pass, unconditional version -- no acceptance/hooks/gold/influence

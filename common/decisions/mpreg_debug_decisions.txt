@@ -1,5 +1,5 @@
 ﻿##############################################################################
-# Male Pregnancy QoL -- debug/dev decisions
+# MPREG - Male Pregnancy -- debug/dev decisions
 # File: common/decisions/mpreg_debug_decisions.txt
 #
 # Hidden for the beta release (is_shown = { always = no } on every decision

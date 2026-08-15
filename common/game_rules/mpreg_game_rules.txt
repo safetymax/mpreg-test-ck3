@@ -1,5 +1,5 @@
 ﻿##############################################################################
-# Male Pregnancy QoL -- Game rule default override
+# MPREG - Male Pregnancy -- Game rule default override
 # File: common/game_rules/mpreg_game_rules.txt
 #
 # Full verbatim redeclaration of vanilla's real "same_sex_marriage" game

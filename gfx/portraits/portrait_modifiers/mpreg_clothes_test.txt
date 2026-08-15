@@ -1,5 +1,5 @@
 ﻿##############################################################################
-# Male Pregnancy QoL -- Forced clothing for pregnant characters
+# MPREG - Male Pregnancy -- Forced clothing for pregnant characters
 # File: gfx/portraits/portrait_modifiers/mpreg_clothes_test.txt
 #
 # ROOT CAUSE of the original test not showing up (found by reading vanilla's

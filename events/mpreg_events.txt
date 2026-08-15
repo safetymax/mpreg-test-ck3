@@ -1,5 +1,5 @@
 ﻿##############################################################################
-# Male Pregnancy QoL -- events
+# MPREG - Male Pregnancy -- events
 # File: events/mpreg_events.txt
 #
 # Most of these (mpreg.0001-0007, 0009) are hidden (no popup) and fired via
@@ -379,15 +379,7 @@ mpreg.0009 = {
 				# itself now handles a missing/invalid father gracefully
 				# (see its own header comment, README Lesson 18), so birth
 				# always fires at term regardless.
-				#
-				# TEMPORARY DIAGNOSTIC (v0.36): debug_log checkpoint right
-				# before the call, so a real test confirms mpreg.0009 itself
-				# actually reaches term and calls mpreg.0007 at all. v0.35's
-				# debug_trigger_event swap here produced no readable log
-				# trace despite a real birth happening in that same test, so
-				# switched to debug_log (see mpreg.0007's own header for why).
 				limit = { var:mpreg_ss_days >= 280 }
-				debug_log = "MPREG_DIAG: mpreg.0009 reached day 280, calling mpreg.0007"
 				trigger_event = mpreg.0007
 			}
 			else = {
@@ -469,11 +461,12 @@ mpreg.0007 = {
 	type = character_event
 	hidden = yes
 	immediate = {
-		# Lesson 30: root cause of the missing popup found. v0.36's
-		# debug_log checkpoints (kept below, still useful) proved the
-		# entire script chain runs cleanly all the way through mpreg.0008's
-		# own immediate -- so the bug was never in script logic at all.
-		# send_interface_toast's own doc is explicit: "Sends a message to
+		# Lesson 30: root cause of the missing popup found. A v0.36
+		# debug_log diagnostic build (since removed, see README/CLAUDE.md
+		# Lesson 29/30 for the full trail) proved the entire script chain
+		# ran cleanly all the way through mpreg.0008's own immediate -- so
+		# the bug was never in script logic at all. send_interface_toast's
+		# own doc is explicit: "Sends a message to
 		# the player playing the character in the scope" -- and a plain
 		# character_event popup follows the identical rule (an AI-
 		# controlled root just auto-resolves its own option, no popup,
@@ -493,7 +486,6 @@ mpreg.0007 = {
 		# narrate the correct person as having given birth, independently
 		# of which character the popup itself displays on.
 		save_scope_as = mpreg_carrier
-		debug_log = "MPREG_DIAG: mpreg.0007 immediate entered"
 		if = {
 			limit = { exists = var:mpreg_ss_other_father }
 			# Same one-time dereference-then-scope pattern as mpreg.0006
@@ -534,7 +526,6 @@ mpreg.0007 = {
 				save_scope_as = mpreg_child
 			}
 			remove_variable = mpreg_ss_other_father
-			debug_log = "MPREG_DIAG: mpreg.0007 create_character done (two-father branch)"
 		}
 		else = {
 			create_character = {
@@ -547,13 +538,11 @@ mpreg.0007 = {
 				culture = root.culture
 				save_scope_as = mpreg_child
 			}
-			debug_log = "MPREG_DIAG: mpreg.0007 create_character done (solo branch)"
 		}
 		create_character_memory = {
 			type = child_born
 			participants = { child = scope:mpreg_child }
 		}
-		debug_log = "MPREG_DIAG: mpreg.0007 create_character_memory done"
 		remove_trait = mp_pregnant
 		remove_variable = mpreg_months
 		remove_variable = mpreg_ss_days
@@ -583,7 +572,6 @@ mpreg.0007 = {
 		}
 		if = {
 			limit = { exists = scope:mpreg_notify_target }
-			debug_log = "MPREG_DIAG: mpreg.0007 notify target found, sending toast"
 			scope:mpreg_notify_target = {
 				send_interface_toast = {
 					title = mpreg_birth_notification_title
@@ -592,13 +580,9 @@ mpreg.0007 = {
 					right_icon = scope:mpreg_child
 				}
 			}
-			debug_log = "MPREG_DIAG: mpreg.0007 about to trigger_event mpreg.0008"
 			scope:mpreg_notify_target = {
 				trigger_event = mpreg.0008
 			}
-		}
-		else = {
-			debug_log = "MPREG_DIAG: mpreg.0007 no human-controlled party, skipping notification"
 		}
 	}
 }
@@ -634,12 +618,6 @@ mpreg.0008 = {
 	title = mpreg_birth_notification_title
 	desc = mpreg_birth_notification_desc
 	theme = pregnancy
-	# TEMPORARY DIAGNOSTIC (v0.36): confirms mpreg.0008 itself is ever
-	# actually reached, independent of whether its popup then renders.
-	# See mpreg.0007's own header comment for the full context.
-	immediate = {
-		debug_log = "MPREG_DIAG: mpreg.0008 immediate entered"
-	}
 	left_portrait = {
 		character = scope:mpreg_carrier
 		animation = happiness

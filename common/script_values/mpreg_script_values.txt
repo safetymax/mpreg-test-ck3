@@ -1,5 +1,5 @@
 ﻿##############################################################################
-# Male Pregnancy QoL -- Male-male conception odds
+# MPREG - Male Pregnancy -- Male-male conception odds
 # File: common/script_values/mpreg_script_values.txt
 #
 # Mirrors vanilla's REAL monthly conception formula verbatim (confirmed
