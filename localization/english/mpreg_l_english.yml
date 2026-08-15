@@ -35,11 +35,6 @@
  mpreg_clear_decision_tooltip:0 "Clear the test."
  mpreg_clear_decision_confirm:0 "Clear"
 
- mpreg_debug_force_both_pregnant_decision:0 "DEBUG: Force Both Spouses Pregnant"
- mpreg_debug_force_both_pregnant_decision_desc:0 "Immediately makes your spouse really pregnant (if female) and starts your own independent pregnancy (if male), bypassing the normal odds entirely. For quickly testing that both can be pregnant at once."
- mpreg_debug_force_both_pregnant_decision_tooltip:0 "Force both of you pregnant right now, for testing."
- mpreg_debug_force_both_pregnant_decision_confirm:0 "Force It"
-
  mpreg_debug_status_decision:0 "DEBUG: MPreg Status Report"
  mpreg_debug_status_decision_desc:0 "Shows the current trait and variable state for this character, without changing anything. Hover the tooltip before confirming -- this decision does nothing when confirmed either way."
  mpreg_debug_status_decision_tooltip:0 "Check the tooltip for current status."
