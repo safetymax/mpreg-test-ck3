@@ -48,6 +48,7 @@ gfx/                     Portrait modifiers, genes-driven visuals, and
                           the custom pregnant male body model/blendshape.
 localization/            English text.
 descriptor.mod           Mod metadata (version, supported game version).
+thumbnail.png            Workshop thumbnail (referenced via descriptor.mod's `picture=`).
 README.md                This file, player-facing overview.
 ```
 
