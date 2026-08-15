@@ -2,15 +2,14 @@
 
 As far as we know, this is the first working male pregnancy mod for CK3. Men can be flagged as carriers, conceive, visibly grow, and give birth, with real vanilla same-sex marriage support built in. It's a first release and still actively being worked on, so there are some known issues. Please read through this before installing.
 
-Current version: **1.0.1**
+Current version: **1.1**
 
 ## What this actually does
 
 This mod lets a male character carry and give birth to a child. Not as a reskinned decision, but wired into CK3's real systems as closely as vanilla allows:
 
 - **Same-sex marriage is on by default**, for every faith, including ones that would normally forbid it. Faiths that consider it shunned or illegal don't block the marriage outright, but they do apply a real consequence through vanilla's own secret/blackmail system.
-- **A mixed-sex couple can redirect the pregnancy onto the husband.** If he's opted in as a "Carrier," a real, mechanically normal pregnancy on his wife visibly plays out on him instead, belly, stages, and all, while the actual conception, health risk, and birth stay 100% vanilla and unmodified.
-- **Two men can conceive, get pregnant, and give birth to a real child**, using a custom conception system built to mirror vanilla's real fertility math (age, health, and traits all matter, not a flat coin flip). The child is correctly recorded as heir to whichever of the two fathers holds the higher-tier title, regardless of who physically carried.
+- **Two men, or a husband and wife, can both conceive and give birth independently.** If a male partner has opted in as a "Carrier," he can get pregnant on his own timeline, entirely separate from his wife's own real, unmodified vanilla pregnancy if she has one too, both producing real, separate children on their own schedules. Uses a custom conception system built to mirror vanilla's real fertility math (age, health, and traits all matter, not a flat coin flip). For a male-male couple, the child is correctly recorded as heir to whichever of the two fathers holds the higher-tier title, regardless of who physically carried. For a mixed-sex couple, the child gets a full, real two-parent record (father and mother), just like a normal vanilla birth.
 - **AI uses all of this too.** AI characters can become carriers on their own (more likely when younger), and the whole system runs in the background without any player input required.
 - **Force or Forbid another character from being a carrier**, a first, simple version of an interaction for a liege/vassal or family authority over this. A fuller version, using hooks, gold, or influence to persuade rather than just order, is planned.
 
@@ -27,7 +26,7 @@ This is a first release, not a finished, feature-complete mod. A few things to k
 
 - **Clothing doesn't fully adjust.** A pregnant male character is forced into a state resembling vanilla's own "no clothes" look, but legwear currently stays on. There's no dedicated maternity clothing yet. That's a known, deliberate trade-off for now, not an oversight.
 - **This is actively being developed and will have bugs.** Several real ones have already been found and fixed by testing in a live game, and more are likely, especially around edge cases (a character in two overlapping relationships, a parent dying mid-pregnancy, and similar). If something looks broken, please open an issue.
-- **When two fathers are involved, only the higher-titled one is recorded in genealogy.** This is a deliberate trade-off to avoid a real data-corruption risk in vanilla's own "disputed heritage" secret. The weaker parent keeps his gameplay role but isn't a recorded parent of the child. One known consequence: if the carrier ends up being the weaker-titled parent, he currently doesn't get the birth-naming prompt.
+- **For a male-male couple specifically, only the higher-titled father is recorded in genealogy.** (This doesn't apply to a mixed-sex couple, both parents are always fully recorded there.) This is a deliberate trade-off to avoid a real data-corruption risk in vanilla's own "disputed heritage" secret. The weaker parent keeps his gameplay role but isn't a recorded parent of the child. One known consequence: if the carrier ends up being the weaker-titled parent, he currently doesn't get the birth-naming prompt.
 - **Save compatibility across updates isn't guaranteed** during the beta. There's a conversion mechanism for known cases, but you should expect some rough edges if you update a mod version mid-save.
 
 ## Compatibility notes

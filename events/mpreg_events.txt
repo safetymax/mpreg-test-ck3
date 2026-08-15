@@ -2,160 +2,26 @@
 # MPREG - Male Pregnancy -- events
 # File: events/mpreg_events.txt
 #
-# Most of these (mpreg.0001-0007, 0009) are hidden (no popup) and fired via
-# common/on_action/mpreg_on_actions.txt or by self-rescheduling/chaining
-# from each other. mpreg.0008 is the one visible/player-facing event in
-# this file, the birth notification (with vanilla's real naming widget
-# attached -- see its own header comment, and README Lesson 21/23).
+# Most of these (mpreg.0002, 0004-0007, 0009) are hidden (no popup) and
+# fired via common/on_action/mpreg_on_actions.txt or by self-rescheduling/
+# chaining from each other. mpreg.0008 is the one visible/player-facing
+# event in this file, the birth notification (with vanilla's real naming
+# widget attached -- see its own header comment, and README Lesson 21/23).
 # See README.md Lessons 12-23 for the real vanilla research behind every
 # non-obvious construct used here -- don't extend this file from memory,
 # verify against real vanilla source first, same as everything already in
 # it.
+#
+# Lesson 32: mpreg.0001 and mpreg.0003 (the old mixed-sex "redirect"
+# system, where a carrier husband's belly was a cosmetic mirror of his
+# real, separately-pregnant wife, no independent conception of his own)
+# were removed entirely and replaced -- see the "Independent conception"
+# section below. Retired, not forgotten: the full history of why that
+# system existed and how it worked is preserved in CLAUDE.md/README.md's
+# Lessons 12-16, 23, 31, kept for context even though the code is gone.
 ##############################################################################
 
 namespace = mpreg
-
-# Fired via on_pregnancy_mother (child_birth_on_actions.txt:1169) once a real,
-# vanilla, female-carried pregnancy reaches "revealed" status, and then every
-# 30 days by its own reschedule below -- on_pregnancy_mother itself only ever
-# fires once per pregnancy (no script anywhere calls it a second time), so
-# without self-rescheduling the carrier's stage would freeze at whatever it
-# was on reveal day and never advance toward stage_2/stage_3. root = the
-# pregnant mother throughout this whole chain (per that on_action's own
-# header comment; deliberately never scope-switched away from her, the same
-# way vanilla's own pregnancy.0001 -> pregnancy.1001/2050 chain stays on the
-# mother end to end) -- so `root.pregnancy_days` and `root = { is_pregnant }`
-# are always read from her, every time this fires.
-# If she has a spouse flagged mp_carrier (common/traits/mpreg_traits.txt),
-# redirect the cosmetic presentation onto him, at the stage matching how far
-# along she already is (root.pregnancy_days is a real, confirmed-native
-# character value -- used the same way in vanilla's own gene_bs_pregnant
-# morph calc, gfx/portraits/portrait_modifiers/99_special.txt:166-212).
-# Her own belly is suppressed separately, by weight, in
-# gfx/portraits/portrait_modifiers/mpreg_pregnancy.txt (mpreg_hide_female_pregnancy).
-# Cleanup on actual birth is handled by mpreg.0003 (on_birth_mother, below),
-# which is also what stops this chain from rescheduling again.
-mpreg.0001 = {
-	type = character_event
-	hidden = yes
-	immediate = {
-		if = {
-			limit = { root = { is_pregnant = yes } }
-			random_spouse = {
-				limit = {
-					is_male = yes
-					has_trait = mp_carrier
-					NOT = { has_trait = mp_pregnant }
-				}
-				save_scope_as = mpreg_carrier
-			}
-			if = {
-				limit = { exists = scope:mpreg_carrier }
-				scope:mpreg_carrier = {
-					add_trait = mp_pregnant
-					if = {
-						limit = { root.pregnancy_days >= 210 }
-						set_variable = { name = mpreg_months value = 7 }
-					}
-					else_if = {
-						limit = { root.pregnancy_days >= 120 }
-						set_variable = { name = mpreg_months value = 4 }
-					}
-					else = {
-						set_variable = { name = mpreg_months value = 1 }
-					}
-				}
-			}
-			else = {
-				# Already redirected earlier and still pregnant -- just keep
-				# his stage in sync with her actual progress. random_spouse,
-				# not any_spouse -- any_spouse is trigger-only; using it here
-				# threw "Unknown effect: any_spouse" and corrupted parsing of
-				# everything declared later in this file (confirmed from a
-				# real error.log, not guessed -- see README Lesson 15).
-				#
-				# Lesson 31: NOT has_variable = mpreg_ss_days added, real bug
-				# fix, not just the mitigation from Lesson 16/23. mp_pregnant
-				# and mpreg_months are shared state between this redirect
-				# system and the independent male-male conception system
-				# (mpreg.0006/0009/0007) -- a spouse who's independently
-				# gestating via the male-male system also has mp_pregnant,
-				# and without this guard he'd match here too, and this
-				# branch would forcibly overwrite HIS OWN mpreg_months to
-				# match his wife's pregnancy_days, corrupting an entirely
-				# unrelated pregnancy. var:mpreg_ss_days is only ever set by
-				# mpreg.0009 (the male-male system's own day tracker), so
-				# its presence reliably means "this mp_pregnant belongs to
-				# the other system, not this redirect" -- a plain number
-				# variable, has_variable is the correct check here (not the
-				# exists/stale-character-reference concern from Lesson 18,
-				# which only applies to variables storing character refs).
-				random_spouse = {
-					limit = {
-						is_male = yes
-						has_trait = mp_pregnant
-						NOT = { has_variable = mpreg_ss_days }
-					}
-					save_scope_as = mpreg_carrier
-				}
-				if = {
-					limit = { exists = scope:mpreg_carrier }
-					scope:mpreg_carrier = {
-						if = {
-							limit = { root.pregnancy_days >= 210 }
-							set_variable = { name = mpreg_months value = 7 }
-						}
-						else_if = {
-							limit = { root.pregnancy_days >= 120 }
-							set_variable = { name = mpreg_months value = 4 }
-						}
-					}
-				}
-			}
-			trigger_event = { id = mpreg.0001 days = 30 }
-		}
-	}
-}
-
-# Fired via on_birth_mother (child_birth_on_actions.txt:8) the moment a real
-# pregnancy actually resolves (covers both the normal-birth and mother-dies
-# cases in that on_action's own events list). root = the mother, same
-# convention as mpreg.0001/on_pregnancy_mother. Clears the redirected
-# pregnancy from any mp_carrier spouse immediately, rather than leaving him
-# visibly pregnant for up to 30 more days until mpreg.0001's own chain would
-# have noticed root.is_pregnant had gone false and stopped itself.
-#
-# Lesson 31: the real fix for the trait-collision bug (Lesson 16/23), found
-# from a live report -- a player whose wife gave birth had it silently
-# terminate his own, completely separate male-male pregnancy with someone
-# else. Root cause: this event used to clear mp_pregnant/mpreg_months off
-# ANY male spouse who had them, with no check for whose pregnancy it
-# actually was, since both systems share the same trait/variable. Same
-# `NOT has_variable = mpreg_ss_days` guard as mpreg.0001's sync branch
-# above -- only clear his redirected pregnancy if it's genuinely the
-# redirect system's, not a real, independent pregnancy that happens to
-# share the same trait.
-mpreg.0003 = {
-	type = character_event
-	hidden = yes
-	immediate = {
-		random_spouse = {
-			limit = {
-				is_male = yes
-				has_trait = mp_pregnant
-				NOT = { has_variable = mpreg_ss_days }
-			}
-			save_scope_as = mpreg_carrier
-		}
-		if = {
-			limit = { exists = scope:mpreg_carrier }
-			scope:mpreg_carrier = {
-				remove_trait = mp_pregnant
-				remove_variable = mpreg_months
-			}
-		}
-	}
-}
 
 # Fired via on_marriage (marriage_concubinage.txt:4) for every live marriage.
 # root = major partner, scope:spouse = minor partner (per that on_action's
@@ -208,11 +74,27 @@ mpreg.0002 = {
 }
 
 ##############################################################################
-# Male-male conception and birth.
+# Independent conception and birth.
 #
-# make_pregnant is hard female-only (Lesson 1) and there's no female in a
-# male-male pair, so none of the above (which all redirect a REAL vanilla
-# pregnancy) applies here. This is a fully custom chain instead:
+# Covers two cases with one shared engine: male-male couples (where
+# make_pregnant is hard female-only, Lesson 1, so no real pregnancy is
+# possible for either partner at all) and mixed-sex couples where the
+# husband is a Carrier (his wife's own fertility/pregnancy stays 100%
+# real, unmodified vanilla throughout -- this only ever adds a second,
+# fully independent pregnancy track for him, never touches hers).
+#
+# Lesson 32: mixed-sex couples used to run on a completely different
+# mechanic (mpreg.0001/0003, removed) -- a real vanilla pregnancy on the
+# wife, cosmetically mirrored onto a carrier husband with no separate
+# conception, no separate child, entirely visual. Per explicit user
+# request (2026-08-15), that's gone: a Carrier husband now goes through
+# this exact same chain a male-male carrier already does, producing his
+# own real, independently-timed child. The chain itself needed almost no
+# change to support this -- mpreg.0006's actual conception/fertility
+# logic never cared what sex either partner was; only the two starter
+# events below ever hard-excluded mixed-sex pairs, and only mpreg.0007's
+# parentage assignment needed a real branch (see its own header comment).
+#
 #   mpreg.0004 / mpreg.0005 (starters, via on_marriage / on_set_relation_lover)
 #     -> mpreg.0006 (monthly try-for-a-child loop, self-reschedules forever
 #        for as long as the couple remains married/lovers, idling whenever
@@ -230,21 +112,27 @@ mpreg.0002 = {
 
 # Fired via on_marriage. root = major partner, scope:spouse = minor partner.
 # Confirmed real event/scope names: common/on_action/marriage_concubinage.txt:1-4.
-# If this is a male-male marriage, capture the other partner as a persistent
-# character-valued variable (var:mpreg_ss_partner -- set_variable accepts "any
-# event target" as its value, confirmed directly from the real, console-
-# generated effects.log, not guessed) and start the mpreg.0006 loop. A
-# variable is used instead of a saved temporary scope because the loop has to
-# survive indefinitely across many separately-fired trigger_event calls, well
-# beyond the lifetime of any single event's temporary scopes.
+# If either partner is male (Lesson 32 -- used to require BOTH male, only
+# male-male couples could ever start this chain), capture the other partner
+# as a persistent character-valued variable (var:mpreg_ss_partner --
+# set_variable accepts "any event target" as its value, confirmed directly
+# from the real, console-generated effects.log, not guessed) and start the
+# mpreg.0006 loop. A variable is used instead of a saved temporary scope
+# because the loop has to survive indefinitely across many separately-fired
+# trigger_event calls, well beyond the lifetime of any single event's
+# temporary scopes. mpreg.0006 itself is what actually confirms the male
+# side is flagged mp_carrier before anything happens -- this starter is
+# deliberately permissive, real eligibility lives in one place, not two.
 mpreg.0004 = {
 	type = character_event
 	hidden = yes
 	immediate = {
 		if = {
 			limit = {
-				is_male = yes
-				scope:spouse = { is_male = yes }
+				OR = {
+					is_male = yes
+					scope:spouse = { is_male = yes }
+				}
 			}
 			set_variable = { name = mpreg_ss_partner value = scope:spouse }
 			trigger_event = { id = mpreg.0006 days = 1 }
@@ -263,8 +151,10 @@ mpreg.0005 = {
 	immediate = {
 		if = {
 			limit = {
-				is_male = yes
-				scope:target = { is_male = yes }
+				OR = {
+					is_male = yes
+					scope:target = { is_male = yes }
+				}
 			}
 			set_variable = { name = mpreg_ss_partner value = scope:target }
 			trigger_event = { id = mpreg.0006 days = 1 }
@@ -277,7 +167,9 @@ mpreg.0005 = {
 # other self-rescheduling chain in this mod. Stops rescheduling itself (and
 # therefore ends permanently) the moment the couple is no longer married AND
 # no longer lovers, or either has died -- no separate on_remove_relation_lover
-# hook needed, this is a self-checking, self-terminating chain like mpreg.0001.
+# hook needed, this is a self-checking, self-terminating chain (mpreg.0009
+# below works the same way, checking its own conditions every reschedule
+# rather than needing an explicit stop signal from anywhere else).
 mpreg.0006 = {
 	type = character_event
 	hidden = yes
@@ -321,9 +213,26 @@ mpreg.0006 = {
 					limit = {
 						NOT = { has_trait = mp_pregnant }
 						NOT = { scope:mpreg_partner = { has_trait = mp_pregnant } }
+						# Lesson 32: only a male qualifies as a candidate carrier
+						# (explicit user decision, 2026-08-15 -- the Carrier
+						# role stays male-only for now, even in a mixed-sex
+						# couple where the wife's own real fertility already
+						# covers her side of things independently). Written as
+						# an explicit AND per side rather than a bare
+						# has_trait check, so a mixed-sex couple where only the
+						# wife happens to hold mp_carrier (a pre-Lesson-32 save,
+						# since valid_sex was open to any sex before this)
+						# correctly does NOT start a pregnancy attempt for her
+						# through this system -- she's not a valid candidate.
 						OR = {
-							has_trait = mp_carrier
-							scope:mpreg_partner = { has_trait = mp_carrier }
+							AND = {
+								is_male = yes
+								has_trait = mp_carrier
+							}
+							scope:mpreg_partner = {
+								is_male = yes
+								has_trait = mp_carrier
+							}
 						}
 						is_visibly_fertile = yes
 						fertility >= 0.1
@@ -332,9 +241,11 @@ mpreg.0006 = {
 							fertility >= 0.1
 						}
 					}
-					# Resolve who carries. If only one of the two is flagged
-					# mp_carrier, he carries. If both are flagged (edge case),
-					# the higher-fertility partner carries -- a documented
+					# Resolve who carries. If only one of the two qualifies
+					# (male + mp_carrier), he carries. If both do (male-male,
+					# both flagged -- the only way this can happen now that a
+					# female can't hold the trait, Lesson 32), the
+					# higher-fertility partner carries -- a documented
 					# simplification of "weighted random by fertility": a true
 					# weighted roll needs a computed random_list weight, which
 					# isn't confirmed-safe syntax without live testing, whereas
@@ -342,8 +253,12 @@ mpreg.0006 = {
 					# this edge case turns out to matter in practice.
 					if = {
 						limit = {
+							is_male = yes
 							has_trait = mp_carrier
-							scope:mpreg_partner = { has_trait = mp_carrier }
+							scope:mpreg_partner = {
+								is_male = yes
+								has_trait = mp_carrier
+							}
 						}
 						if = {
 							limit = { fertility >= scope:mpreg_partner.fertility }
@@ -356,11 +271,17 @@ mpreg.0006 = {
 						}
 					}
 					else_if = {
-						limit = { has_trait = mp_carrier }
+						limit = {
+							is_male = yes
+							has_trait = mp_carrier
+						}
 						save_scope_as = mpreg_carrier
 						scope:mpreg_partner = { save_scope_as = mpreg_other_father }
 					}
 					else = {
+						# By elimination: the outer OR guaranteed one of the two
+						# is a qualifying male carrier, and root failed both
+						# checks above, so scope:mpreg_partner must be the one.
 						scope:mpreg_partner = { save_scope_as = mpreg_carrier }
 						save_scope_as = mpreg_other_father
 					}
@@ -383,15 +304,17 @@ mpreg.0006 = {
 	}
 }
 
-# Day/stage tracker for a custom male-male pregnancy. root = the carrier
+# Day/stage tracker for an independent pregnancy (male-male, or a
+# mixed-sex couple's Carrier husband, Lesson 32). root = the carrier
 # (scope-switched onto him via mpreg.0006's `scope:mpreg_carrier = {
 # trigger_event = ... }`, the same well-established "act on a different
 # character, then fire an event about them" pattern vanilla itself uses
-# everywhere). Mirrors mpreg.0001's stage thresholds (120/210 days) and
-# vanilla's own PREGNANCY_DAYS = 280 (common/defines/00_defines.txt:382)
-# for when birth happens. No engine-tracked pregnancy_days exists for a
-# custom pregnancy, so var:mpreg_ss_days is our own counter, advanced 30
-# days per tick to match this chain's own reschedule interval.
+# everywhere). Mirrors vanilla's own real pregnancy stage thresholds
+# (120/210 days) and PREGNANCY_DAYS = 280
+# (common/defines/00_defines.txt:382) for when birth happens. No
+# engine-tracked pregnancy_days exists for a custom pregnancy, so
+# var:mpreg_ss_days is our own counter, advanced 30 days per tick to
+# match this chain's own reschedule interval.
 mpreg.0009 = {
 	type = character_event
 	hidden = yes
@@ -482,6 +405,12 @@ mpreg.0009 = {
 # family fields entirely) is a real possible future enhancement, not
 # implemented here.
 #
+# Lesson 32: all of the above (Lessons 27/28) is specifically about the
+# male-male case, where nothing else was ever possible. When the other
+# partner is female (a mixed-sex couple's Carrier husband, added in this
+# same lesson), none of this restriction applies -- see the real
+# father+mother branch inside create_character below.
+#
 # exists = var:mpreg_ss_other_father (not has_variable, same reasoning as
 # mpreg.0006's fix, see README Lesson 18) gates which branch runs. If the
 # other father died during gestation, this used to leave mpreg.0009's
@@ -529,37 +458,68 @@ mpreg.0007 = {
 			# immediately rather than referencing var:mpreg_ss_other_father
 			# repeatedly across father/dynasty_house/faith/culture below.
 			var:mpreg_ss_other_father = { save_scope_as = mpreg_other_father }
-			# Lesson 27: which of the two fathers gets the "father" slot
-			# (confirmed the real inheritance-line one, Lesson 26) is no
-			# longer always the carrier -- per design decision, it's
-			# whichever of the two holds the higher-tier title, since
-			# carrying and political/inheritance standing are unrelated,
-			# and the user specifically wants the more "powerful" parent's
-			# line to be the one the child actually inherits through
-			# regardless of who physically carried. highest_held_title_tier
-			# (not primary_title.tier) is used since it accounts for all
-			# titles held, not just the primary one -- confirmed real,
-			# dynamic-comparison syntax against another character's value
-			# (common/scripted_triggers/00_secret_type_triggers.txt:250,
-			# "any_close_or_extended_family_member = { highest_held_title_tier
-			# >= $OWNER$.primary_title.tier }"). Ties (including
-			# landless-vs-landless) default to the carrier via >=.
+			# Lesson 32: real, full two-parent genealogy when the other
+			# partner is female (a mixed-sex couple's Carrier husband).
+			# Unlike the male-male case, nothing blocks a female from
+			# holding the "mother" slot -- the only hard restriction
+			# (Lesson 25/26) is specifically that a MALE can never be
+			# "mother". root (the carrier, guaranteed male -- Lesson 32's
+			# is_male = yes requirement in mpreg.0006) is always father
+			# here; no title-tier comparison is needed at all in this
+			# branch, a normal father+mother pair is fully valid
+			# regardless of either partner's title.
 			if = {
-				limit = { highest_held_title_tier >= scope:mpreg_other_father.highest_held_title_tier }
-				save_scope_as = mpreg_stronger_parent
+				limit = { scope:mpreg_other_father = { is_female = yes } }
+				create_character = {
+					father = root
+					mother = scope:mpreg_other_father
+					gender_female_chance = 49
+					age = 0
+					dynasty_house = root.house
+					location = root.location
+					faith = root.faith
+					culture = root.culture
+					save_scope_as = mpreg_child
+				}
 			}
 			else = {
-				scope:mpreg_other_father = { save_scope_as = mpreg_stronger_parent }
-			}
-			create_character = {
-				father = scope:mpreg_stronger_parent
-				gender_female_chance = 49
-				age = 0
-				dynasty_house = scope:mpreg_stronger_parent.house
-				location = root.location
-				faith = scope:mpreg_stronger_parent.faith
-				culture = scope:mpreg_stronger_parent.culture
-				save_scope_as = mpreg_child
+				# Male-male: unchanged from Lesson 27/28. Which of the two
+				# gets the "father" slot (confirmed the real
+				# inheritance-line one, Lesson 26) is whichever holds the
+				# higher-tier title, since carrying and political/
+				# inheritance standing are unrelated, and the user
+				# specifically wants the more "powerful" parent's line to
+				# be the one the child actually inherits through
+				# regardless of who physically carried. highest_held_title_tier
+				# (not primary_title.tier) is used since it accounts for
+				# all titles held, not just the primary one -- confirmed
+				# real, dynamic-comparison syntax against another
+				# character's value
+				# (common/scripted_triggers/00_secret_type_triggers.txt:250,
+				# "any_close_or_extended_family_member = { highest_held_title_tier
+				# >= $OWNER$.primary_title.tier }"). Ties (including
+				# landless-vs-landless) default to the carrier via >=.
+				# real_father is deliberately never set here -- see Lesson
+				# 28 for the confirmed data-corruption risk that ruled it
+				# out (vanilla's own "disputed heritage" secret would
+				# silently overwrite father on discovery).
+				if = {
+					limit = { highest_held_title_tier >= scope:mpreg_other_father.highest_held_title_tier }
+					save_scope_as = mpreg_stronger_parent
+				}
+				else = {
+					scope:mpreg_other_father = { save_scope_as = mpreg_stronger_parent }
+				}
+				create_character = {
+					father = scope:mpreg_stronger_parent
+					gender_female_chance = 49
+					age = 0
+					dynasty_house = scope:mpreg_stronger_parent.house
+					location = root.location
+					faith = scope:mpreg_stronger_parent.faith
+					culture = scope:mpreg_stronger_parent.culture
+					save_scope_as = mpreg_child
+				}
 			}
 			remove_variable = mpreg_ss_other_father
 		}

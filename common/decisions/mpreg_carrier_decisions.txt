@@ -9,17 +9,19 @@
 # AI potential/weighting added (previously ai_potential = { always = no },
 # meaning AI never used either decision at all -- confirmed the real cause
 # of "no naturally occurring gay marriages/pregnancies" observed in
-# testing, at least for this half of the pipeline). Gated to is_male = yes
-# for AI specifically (not is_valid, which stays open to any sex for the
-# player) because mp_carrier is only ever functionally consumed by a male
-# character today -- both mpreg.0001's mixed-couple redirect and
-# mpreg.0006's male-male system filter candidates on is_male = yes when
-# picking a carrier (events/mpreg_events.txt) -- so a female AI character
-# flagging herself would be flagging a trait that can never actually do
-# anything, just clutter. Real ai_will_do/modifier syntax confirmed from
-# vanilla's own decisions (e.g. common/decisions/00_fp3_decisions.txt),
-# base + additive modifier blocks. Age thresholds (30/40) are the design
-# values given directly, not derived from anything vanilla.
+# testing, at least for this half of the pipeline). Real ai_will_do/modifier
+# syntax confirmed from vanilla's own decisions (e.g.
+# common/decisions/00_fp3_decisions.txt), base + additive modifier blocks.
+# Age thresholds (30/40) are the design values given directly, not derived
+# from anything vanilla.
+#
+# Lesson 32: is_male = yes added to is_valid/is_shown too (previously open
+# to any sex for the player, only gated for AI) -- explicit user decision,
+# 2026-08-15, that the Carrier role stays male-only for now. Redundant with
+# valid_sex = male on the trait itself (common/traits/mpreg_traits.txt,
+# the real authoritative block), but kept here too so the decision doesn't
+# even show as an option for a female player in the first place, rather
+# than showing something that would silently do nothing.
 #
 # Also now gated on NOT has_character_flag = mpreg_carrier_forbidden --
 # see common/character_interactions/mpreg_carrier_interactions.txt for
@@ -33,11 +35,13 @@ mpreg_become_carrier_decision = {
 	desc = mpreg_become_carrier_decision_desc
 	selection_tooltip = mpreg_become_carrier_decision_tooltip
 	is_shown = {
+		is_male = yes
 		is_adult = yes
 		NOT = { has_trait = mp_carrier }
 		NOT = { has_character_flag = mpreg_carrier_forbidden }
 	}
 	is_valid = {
+		is_male = yes
 		is_adult = yes
 		NOT = { has_trait = mp_carrier }
 		NOT = { has_character_flag = mpreg_carrier_forbidden }
