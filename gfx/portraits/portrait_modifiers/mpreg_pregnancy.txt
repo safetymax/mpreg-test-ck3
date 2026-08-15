@@ -108,10 +108,60 @@ mpreg_cloak_clearance = {
 	}
 }
 
-# Lesson 32: mpreg_hide_female_pregnancy (which used to live here) is
-# removed. It existed solely to hide a real mother's own belly while a
-# flagged male spouse showed a cosmetic mirror of her pregnancy instead
-# (the old mpreg.0001 "redirect" system, also removed -- see
-# events/mpreg_events.txt). With no redirect, a woman's real pregnancy
-# renders exactly like unmodified vanilla, always, with no suppression of
-# any kind needed.
+##############################################################################
+# Hide the real mother's own belly while a flagged male spouse is showing
+# the redirected pregnancy (see events/mpreg_events.txt: mpreg.0001).
+#
+# Vanilla's own female belly comes from the "special_pregnancy" group
+# (gfx/portraits/portrait_modifiers/99_special.txt:166-212), which declares
+# no explicit priority (defaults to 0 per _portrait_modifiers.info). This
+# group must set a HIGHER priority to apply afterward and overwrite it, the
+# same override-order reasoning as Lesson 11 (clothes_special).
+##############################################################################
+
+mpreg_hide_female_pregnancy = {
+
+	usage = game
+	priority = 1
+
+	mpreg_hide_belly = {
+		ignore_outfit_tags = yes
+		dna_modifiers = {
+			# mode = replace is invalid for special/morph genes like
+			# gene_bs_pregnant -- confirmed directly from a real error.log:
+			# "modes modify, modify_multiply and replace only work for
+			# regular genes" (dnamodifier.cpp:50). Only mode = add is valid
+			# here, so instead of replacing with 0.0, add a value negative
+			# enough to floor the accumulated total at the template's own
+			# declared min (0.0, common/genes/mpreg_genes.txt) regardless of
+			# whatever special_pregnancy already contributed (which is
+			# itself clamped to at most 1.0).
+			morph = {
+				mode = add
+				gene = gene_bs_pregnant
+				template = pregnant
+				value = -2.0
+			}
+		}
+		weight = {
+			base = 0
+			modifier = {
+				add = 100000
+				# is_pregnant = yes (her own, real, mechanical state) is
+				# required in addition to "a male spouse has mp_pregnant" --
+				# without it, this could false-positive if that spouse's
+				# mp_pregnant instead represents an unrelated male-male
+				# pregnancy with a different partner (see README Lesson 16).
+				# Narrows the window for that collision; doesn't fully
+				# eliminate it, since mp_pregnant/stage traits are shared
+				# between both systems -- see Lesson 16 for the real fix
+				# still outstanding.
+				is_pregnant = yes
+				any_spouse = {
+					is_male = yes
+					has_trait = mp_pregnant
+				}
+			}
+		}
+	}
+}

@@ -32,24 +32,15 @@ mp_pregnant = {
 # (gfx/portraits/portrait_modifiers/mpreg_pregnancy.txt) -- genuinely
 # invisible to the player, not just cosmetically hidden.
 
-# Persistent marker: "this character is eligible to carry a pregnancy".
-# Purely a role marker -- no mechanical effect of its own. Toggled via
+# Persistent marker: "this character is eligible to carry a pregnancy"
+# (independent of vanilla sex-based assumptions). Purely a role marker --
+# no mechanical effect of its own. Toggled via
 # common/decisions/mpreg_carrier_decisions.txt (self) or
 # common/character_interactions/mpreg_carrier_interactions.txt (someone
 # else, Lesson 22). Actually consumed by events/mpreg_events.txt's
-# mpreg.0006 (the independent conception/birth chain, covering both
-# male-male couples and a mixed-sex couple's Carrier husband, Lesson 32).
-#
-# Lesson 32: valid_sex changed from `all` to `male`, an explicit user
-# decision (2026-08-15) -- the Carrier role stays male-only for now, even
-# though a mixed-sex couple's wife could in principle be flagged too. This
-# is the authoritative restriction: a female can no longer hold this trait
-# from ANY source (decision, interaction, console), full stop. The decision
-# (`is_valid`/`is_shown`) and mpreg.0006's own runtime carrier-resolution
-# logic both also check `is_male = yes` independently, as a defensive
-# backstop for any old save where a female already held the trait from
-# before this change -- same layered pattern as everywhere else in this
-# project (e.g. Lesson 18's `exists`/`has_variable` distinction).
+# mpreg.0001 (mixed-couple redirect) and mpreg.0006 (male-male conception),
+# both of which only ever pick a carrier where is_male = yes -- see
+# Lesson 14 for why AI use of mp_carrier is gated to males only.
 # icon = fecund.dds reuses vanilla's real "fecund" trait icon
 # (gfx/interface/icons/traits/fecund.dds) -- fecund is vanilla's own
 # high-fertility trait (common/traits/00_traits.txt:7725, opposite of
@@ -57,7 +48,7 @@ mp_pregnant = {
 # pending a dedicated custom icon later.
 mp_carrier = {
     category = personality
-    valid_sex = male
+    valid_sex = all
     minimum_age = 16
     icon = "fecund.dds"
 }
