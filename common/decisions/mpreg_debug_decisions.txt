@@ -232,3 +232,99 @@ mpreg_debug_status_decision = {
         always = no
     }
 }
+
+# ---------------------------------------------------------------------------
+# Debug: force both partners in a marriage pregnant at once, bypassing the
+# normal monthly conception roll entirely -- for quickly testing that a
+# mixed-sex couple's wife (real vanilla pregnancy) and Carrier husband
+# (independent pregnancy, Lesson 32) can genuinely overlap, without waiting
+# on real fertility odds. Deliberately shown (is_shown/is_valid = is_married,
+# not always = no like the rest of this file) since this is meant to be
+# clicked directly during testing, not left buried.
+#
+# Whichever of root/spouse is female gets a real, vanilla pregnancy via
+# make_pregnant_no_checks (bypasses normal preconditions like celibacy or
+# low fertility -- confirmed real effect, effects.log, exactly for this
+# kind of debug/testing use). Whichever is male gets the same independent-
+# pregnancy start mpreg.0006's own successful conception roll would do
+# (add_trait mp_pregnant, reset the day counter, record the other partner
+# in mpreg_ss_other_father, kick off mpreg.0009's tracker) -- deliberately
+# NOT gated on mp_carrier here, so it works as a pure mechanical test even
+# before separately testing the Carrier decision itself. For a male-male
+# marriage, only whichever of the two is root gets the independent
+# pregnancy started (matches how a real decision always runs on root only);
+# use it on the other partner separately to start his too.
+mpreg_debug_force_both_pregnant_decision = {
+    picture = {
+        reference = "gfx/interface/illustrations/decisions/decision_realm.dds"
+    }
+    desc = mpreg_debug_force_both_pregnant_decision_desc
+    selection_tooltip = mpreg_debug_force_both_pregnant_decision_tooltip
+    is_shown = {
+        is_married = yes
+    }
+    is_valid = {
+        is_married = yes
+    }
+    effect = {
+        random_spouse = {
+            limit = { always = yes }
+            save_scope_as = mpreg_debug_spouse
+        }
+        if = {
+            limit = { exists = scope:mpreg_debug_spouse }
+            if = {
+                limit = {
+                    is_female = yes
+                    NOT = { is_pregnant = yes }
+                }
+                make_pregnant_no_checks = {
+                    father = scope:mpreg_debug_spouse
+                }
+            }
+            else_if = {
+                limit = {
+                    scope:mpreg_debug_spouse = {
+                        is_female = yes
+                        NOT = { is_pregnant = yes }
+                    }
+                }
+                scope:mpreg_debug_spouse = {
+                    make_pregnant_no_checks = {
+                        father = root
+                    }
+                }
+            }
+            if = {
+                limit = {
+                    is_male = yes
+                    NOT = { has_trait = mp_pregnant }
+                }
+                add_trait = mp_pregnant
+                set_variable = { name = mpreg_months value = 1 }
+                set_variable = { name = mpreg_ss_days value = 0 }
+                set_variable = { name = mpreg_ss_other_father value = scope:mpreg_debug_spouse }
+                trigger_event = { id = mpreg.0009 days = 30 }
+            }
+            else_if = {
+                limit = {
+                    scope:mpreg_debug_spouse = {
+                        is_male = yes
+                        NOT = { has_trait = mp_pregnant }
+                    }
+                }
+                scope:mpreg_debug_spouse = {
+                    add_trait = mp_pregnant
+                    set_variable = { name = mpreg_months value = 1 }
+                    set_variable = { name = mpreg_ss_days value = 0 }
+                    set_variable = { name = mpreg_ss_other_father value = root }
+                    trigger_event = { id = mpreg.0009 days = 30 }
+                }
+            }
+        }
+    }
+    ai_check_interval = 1
+    ai_potential = {
+        always = no
+    }
+}
