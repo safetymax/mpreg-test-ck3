@@ -70,7 +70,7 @@
  mpreg_stop_carrier_decision_confirm:0 "Stop"
 
  mpreg_birth_notification_title:0 "A Child is Born"
- mpreg_birth_notification_desc:0 "[ROOT.Char.GetFirstName] has given birth to [mpreg_child.GetFirstName], a healthy child."
+ mpreg_birth_notification_desc:0 "[mpreg_carrier.GetFirstName] has given birth to [mpreg_child.GetFirstName], a healthy child."
  mpreg_birth_notification_confirm:0 "Wonderful"
 
  mpreg_force_carrier_interaction:0 "Force to Become a Carrier"

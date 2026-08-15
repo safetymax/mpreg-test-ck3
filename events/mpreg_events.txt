@@ -469,16 +469,30 @@ mpreg.0007 = {
 	type = character_event
 	hidden = yes
 	immediate = {
-		# TEMPORARY DIAGNOSTIC (v0.36): v0.35's debug_trigger_event swap
-		# produced zero trace in error.log, debug.log, or game.log despite
-		# a real, confirmed birth happening in that same test session --
-		# meaning debug_trigger_event's output isn't reaching any log file
-		# readable outside the game's own interactive console (never
-		# opened during that test). Dead end as a diagnostic. Switched to
-		# debug_log instead, which effects.log documents plainly as
-		# "Log a string to the debug log when this effect executes" --
-		# unambiguous checkpoints, no console required. Grep debug.log for
-		# "MPREG_DIAG" after the next test.
+		# Lesson 30: root cause of the missing popup found. v0.36's
+		# debug_log checkpoints (kept below, still useful) proved the
+		# entire script chain runs cleanly all the way through mpreg.0008's
+		# own immediate -- so the bug was never in script logic at all.
+		# send_interface_toast's own doc is explicit: "Sends a message to
+		# the player playing the character in the scope" -- and a plain
+		# character_event popup follows the identical rule (an AI-
+		# controlled root just auto-resolves its own option, no popup,
+		# same as any vanilla event firing on an NPC). Every notification
+		# in this chain fires on root, which is "the carrier" by design --
+		# fine when the player is playing their own carrier, but the
+		# carrier is very often the player's AI-controlled spouse/consort
+		# instead (confirmed live: "married a man, he got pregnant", the
+		# husband who carried was never player-controlled). Root cause,
+		# not a guess: send_interface_toast and the mpreg.0008 popup both
+		# failed identically because both were firing on an AI character.
+		#
+		# Fix: figure out which of the two fathers, if either, is actually
+		# human-controlled (is_ai = no), and route the notification to
+		# THEM specifically, instead of unconditionally to root. scope:
+		# mpreg_carrier is saved up front so mpreg.0008 can still show and
+		# narrate the correct person as having given birth, independently
+		# of which character the popup itself displays on.
+		save_scope_as = mpreg_carrier
 		debug_log = "MPREG_DIAG: mpreg.0007 immediate entered"
 		if = {
 			limit = { exists = var:mpreg_ss_other_father }
@@ -543,55 +557,66 @@ mpreg.0007 = {
 		remove_trait = mp_pregnant
 		remove_variable = mpreg_months
 		remove_variable = mpreg_ss_days
-		# Lesson 29: fires immediately now, not delayed by a day like it
-		# used to. The 1-day delay (and the persistent mpreg_ss_child
-		# variable that existed only to survive it) was built on a theory
-		# from Lesson 25 that the naming widget needed time for the
-		# child's family data to "settle" -- that theory was already
-		# proven wrong by Lesson 26 (the real cause was the parentage
-		# bug, fixed by switching mother= to father=), but the delay
-		# itself never got reverted afterward. A live v0.33 test found
-		# the notification popup wasn't appearing at all anymore (not
-		# just the widget) -- root cause not confirmed with certainty,
-		# but the delayed design is strictly riskier than it needs to be
-		# regardless: it re-derives scope:mpreg_child a full day later
-		# through a persistent variable, instead of just handing off the
-		# still-valid scope:mpreg_child directly. Vanilla's own
-		# equivalent chain proves the safer pattern is real: birth.0001
-		# fires birth.1001 with a bare `trigger_event = birth.1001`, no
-		# delay, in the exact same immediate block, and birth.1001 goes
-		# on to use scope:child directly without ever re-deriving it --
-		# scope carryover across a same-tick trigger_event chain is
-		# exactly how vanilla's entire birth-flavor system works, not a
-		# guess. Matching that pattern here removes the delay, the
-		# persistent variable, and the later re-derivation in one pass.
+		# Fires immediately, same-tick (Lesson 29) -- scope:mpreg_child and
+		# scope:mpreg_carrier both carry straight over into mpreg.0008,
+		# the same same-tick scope-carryover pattern vanilla's own
+		# birth.0001 -> birth.1001 chain relies on.
 		#
-		# A send_interface_toast fires here too, independent of the
-		# character_event/widget system mpreg.0008 relies on (confirmed
-		# real syntax, effects.log: "Sends a message to the player playing
-		# the character in the scope"). v0.35's test result was ambiguous
-		# on whether this showed (report was "no popup... just a banner
-		# again", same wording as before, toast not explicitly mentioned
-		# either way) -- kept in for v0.36 alongside the debug_log trail so
-		# this test gives an unambiguous answer either way.
-		debug_log = "MPREG_DIAG: mpreg.0007 about to send_interface_toast"
-		send_interface_toast = {
-			title = mpreg_birth_notification_title
-			desc = mpreg_birth_notification_desc
-			left_icon = root
-			right_icon = scope:mpreg_child
+		# Lesson 30: fires on whichever party is actually human-controlled,
+		# not unconditionally on root/the carrier anymore. root is checked
+		# first (covers the common case: the player is their own carrier),
+		# falling back to the other father if HE'S the human one instead
+		# (covers a player who married an AI spouse who ended up carrying,
+		# the exact scenario that surfaced this bug). If neither is
+		# human-controlled, there's genuinely no one to show a popup to,
+		# and none fires -- correct, not a bug.
+		if = {
+			limit = { is_ai = no }
+			save_scope_as = mpreg_notify_target
 		}
-		debug_log = "MPREG_DIAG: mpreg.0007 about to trigger_event mpreg.0008"
-		trigger_event = mpreg.0008
+		else_if = {
+			limit = {
+				exists = scope:mpreg_other_father
+				scope:mpreg_other_father = { is_ai = no }
+			}
+			scope:mpreg_other_father = { save_scope_as = mpreg_notify_target }
+		}
+		if = {
+			limit = { exists = scope:mpreg_notify_target }
+			debug_log = "MPREG_DIAG: mpreg.0007 notify target found, sending toast"
+			scope:mpreg_notify_target = {
+				send_interface_toast = {
+					title = mpreg_birth_notification_title
+					desc = mpreg_birth_notification_desc
+					left_icon = scope:mpreg_carrier
+					right_icon = scope:mpreg_child
+				}
+			}
+			debug_log = "MPREG_DIAG: mpreg.0007 about to trigger_event mpreg.0008"
+			scope:mpreg_notify_target = {
+				trigger_event = mpreg.0008
+			}
+		}
+		else = {
+			debug_log = "MPREG_DIAG: mpreg.0007 no human-controlled party, skipping notification"
+		}
 	}
 }
 
 # Simple visible birth notification (per design decision: not vanilla's full
-# birth.0001 flavor yet, that's deferred -- see README). root = the carrier.
-# Fires immediately from mpreg.0007 now, not delayed by a day (Lesson 29) --
-# scope:mpreg_child carries straight over from mpreg.0007's own immediate,
+# birth.0001 flavor yet, that's deferred -- see README).
+#
+# Lesson 30: root here is NOT necessarily the carrier anymore -- it's
+# whichever party mpreg.0007 determined is actually human-controlled
+# (scope:mpreg_notify_target there), since a plain character_event popup
+# (like send_interface_toast) never renders on an AI-controlled root at
+# all, it just silently auto-resolves. When the player's spouse is the
+# one who carried, root here is the player's own character instead, and
+# scope:mpreg_carrier (carried over from mpreg.0007) is who the text and
+# left portrait should actually reference. Both scope:mpreg_carrier and
+# scope:mpreg_child carry straight over from mpreg.0007's own immediate,
 # the same same-tick scope-carryover pattern vanilla's own birth.0001 ->
-# birth.1001 chain relies on. No re-derivation needed here anymore.
+# birth.1001 chain relies on.
 #
 # Naming widget confirmed real and verbatim from vanilla's own birth.1001
 # (events/birth_events.txt) -- gui/container/controller field names and the
@@ -599,13 +624,11 @@ mpreg.0007 = {
 # (scope:child -> scope:mpreg_child, matching this file's own convention).
 # allow_naming_on_birth_of_child_trigger (common/scripted_triggers/00_birth_triggers.txt:13)
 # already requires is_ai = no and is_close_family_of = $CHILD$ on whoever
-# it's evaluated on (root here) -- root = the carrier, and this widget only
-# actually shows for root when root is also the recorded father. Since
-# Lesson 27, that's not guaranteed anymore (the higher-titled parent gets
-# `father`, which may be the other father instead) -- see Lesson 28 and
-# README Section 4 for that known, accepted gap. When root IS the recorded
-# father, create_character's father = root (mpreg.0007) establishes the
-# family relationship and no extra guard is needed here.
+# it's evaluated on (root here, i.e. the notified viewer) -- this widget
+# only actually shows when that viewer is also the recorded father. Since
+# Lesson 27, the recorded father is whichever partner holds the higher
+# title, which may not be the viewer -- see Lesson 28 and README Section 4
+# for that known, accepted gap.
 mpreg.0008 = {
 	type = character_event
 	title = mpreg_birth_notification_title
@@ -618,7 +641,7 @@ mpreg.0008 = {
 		debug_log = "MPREG_DIAG: mpreg.0008 immediate entered"
 	}
 	left_portrait = {
-		character = root
+		character = scope:mpreg_carrier
 		animation = happiness
 	}
 	right_portrait = {
