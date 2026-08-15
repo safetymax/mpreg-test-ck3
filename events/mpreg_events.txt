@@ -380,17 +380,15 @@ mpreg.0009 = {
 				# (see its own header comment, README Lesson 18), so birth
 				# always fires at term regardless.
 				#
-				# TEMPORARY DIAGNOSTIC (Lesson 29, v0.35): debug_trigger_event
-				# instead of trigger_event -- prints the target event's trigger
-				# fulfillment and immediate effects to the log. Two different
-				# fixes for the missing birth-notification popup (v0.33's
-				# delayed variable hand-off, v0.34's immediate scope-passthrough)
-				# produced the exact same symptom, which rules out timing/
-				# scope-carryover as the cause. Needs real evidence instead of
-				# a third guess -- revert to plain trigger_event once the real
-				# cause is confirmed from a -debug_mode test's debug.log/
-				# game.log output.
-				debug_trigger_event = mpreg.0007
+				# TEMPORARY DIAGNOSTIC (v0.36): debug_log checkpoint right
+				# before the call, so a real test confirms mpreg.0009 itself
+				# actually reaches term and calls mpreg.0007 at all. v0.35's
+				# debug_trigger_event swap here produced no readable log
+				# trace despite a real birth happening in that same test, so
+				# switched to debug_log (see mpreg.0007's own header for why).
+				limit = { var:mpreg_ss_days >= 280 }
+				debug_log = "MPREG_DIAG: mpreg.0009 reached day 280, calling mpreg.0007"
+				trigger_event = mpreg.0007
 			}
 			else = {
 				trigger_event = { id = mpreg.0009 days = 30 }
@@ -471,6 +469,17 @@ mpreg.0007 = {
 	type = character_event
 	hidden = yes
 	immediate = {
+		# TEMPORARY DIAGNOSTIC (v0.36): v0.35's debug_trigger_event swap
+		# produced zero trace in error.log, debug.log, or game.log despite
+		# a real, confirmed birth happening in that same test session --
+		# meaning debug_trigger_event's output isn't reaching any log file
+		# readable outside the game's own interactive console (never
+		# opened during that test). Dead end as a diagnostic. Switched to
+		# debug_log instead, which effects.log documents plainly as
+		# "Log a string to the debug log when this effect executes" --
+		# unambiguous checkpoints, no console required. Grep debug.log for
+		# "MPREG_DIAG" after the next test.
+		debug_log = "MPREG_DIAG: mpreg.0007 immediate entered"
 		if = {
 			limit = { exists = var:mpreg_ss_other_father }
 			# Same one-time dereference-then-scope pattern as mpreg.0006
@@ -511,6 +520,7 @@ mpreg.0007 = {
 				save_scope_as = mpreg_child
 			}
 			remove_variable = mpreg_ss_other_father
+			debug_log = "MPREG_DIAG: mpreg.0007 create_character done (two-father branch)"
 		}
 		else = {
 			create_character = {
@@ -523,11 +533,13 @@ mpreg.0007 = {
 				culture = root.culture
 				save_scope_as = mpreg_child
 			}
+			debug_log = "MPREG_DIAG: mpreg.0007 create_character done (solo branch)"
 		}
 		create_character_memory = {
 			type = child_born
 			participants = { child = scope:mpreg_child }
 		}
+		debug_log = "MPREG_DIAG: mpreg.0007 create_character_memory done"
 		remove_trait = mp_pregnant
 		remove_variable = mpreg_months
 		remove_variable = mpreg_ss_days
@@ -554,24 +566,23 @@ mpreg.0007 = {
 		# guess. Matching that pattern here removes the delay, the
 		# persistent variable, and the later re-derivation in one pass.
 		#
-		# TEMPORARY DIAGNOSTIC (v0.35): a send_interface_toast fires right
-		# here, completely independent of the character_event/widget system
-		# that mpreg.0008 relies on -- a much simpler, lower-level real
-		# vanilla mechanism (confirmed syntax, effects.log: "Sends a message
-		# to the player playing the character in the scope"). If this toast
-		# shows up in a real test but the mpreg.0008 popup still doesn't,
-		# that proves this whole immediate block runs fine and isolates the
-		# bug specifically to mpreg.0008's own popup/widget rendering. If
-		# even the toast doesn't show, the problem is further upstream than
-		# previously assumed (this event, or the chain calling it, isn't
-		# actually running the way the missing error logs suggested).
+		# A send_interface_toast fires here too, independent of the
+		# character_event/widget system mpreg.0008 relies on (confirmed
+		# real syntax, effects.log: "Sends a message to the player playing
+		# the character in the scope"). v0.35's test result was ambiguous
+		# on whether this showed (report was "no popup... just a banner
+		# again", same wording as before, toast not explicitly mentioned
+		# either way) -- kept in for v0.36 alongside the debug_log trail so
+		# this test gives an unambiguous answer either way.
+		debug_log = "MPREG_DIAG: mpreg.0007 about to send_interface_toast"
 		send_interface_toast = {
 			title = mpreg_birth_notification_title
 			desc = mpreg_birth_notification_desc
 			left_icon = root
 			right_icon = scope:mpreg_child
 		}
-		debug_trigger_event = mpreg.0008
+		debug_log = "MPREG_DIAG: mpreg.0007 about to trigger_event mpreg.0008"
+		trigger_event = mpreg.0008
 	}
 }
 
@@ -600,6 +611,12 @@ mpreg.0008 = {
 	title = mpreg_birth_notification_title
 	desc = mpreg_birth_notification_desc
 	theme = pregnancy
+	# TEMPORARY DIAGNOSTIC (v0.36): confirms mpreg.0008 itself is ever
+	# actually reached, independent of whether its popup then renders.
+	# See mpreg.0007's own header comment for the full context.
+	immediate = {
+		debug_log = "MPREG_DIAG: mpreg.0008 immediate entered"
+	}
 	left_portrait = {
 		character = root
 		animation = happiness

@@ -1,7 +1,7 @@
-﻿version="0.35"
+﻿version="0.36"
 tags={
     "Gameplay"
     "Graphics"
 }
-name="MPreg Test v0.35"
+name="MPreg Test v0.36"
 supported_version="1.19.0.6"
