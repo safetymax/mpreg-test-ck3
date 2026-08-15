@@ -54,13 +54,12 @@
  PORTRAIT_MODIFIER_mpreg_pregnant_stage_1:0 "Early Pregnancy"
  PORTRAIT_MODIFIER_mpreg_pregnant_stage_2:0 "Mid Pregnancy"
  PORTRAIT_MODIFIER_mpreg_pregnant_stage_3:0 "Late Pregnancy"
- PORTRAIT_MODIFIER_mpreg_hide_female_pregnancy_mpreg_hide_belly:0 "MPreg Hidden Belly"
 
  trait_mp_carrier:0 "Carrier"
- trait_mp_carrier_desc:0 "This character has chosen to be eligible to carry a pregnancy, regardless of sex."
+ trait_mp_carrier_desc:0 "This character is eligible to carry his own, real pregnancy."
 
  mpreg_become_carrier_decision:0 "Become a Carrier"
- mpreg_become_carrier_decision_desc:0 "Mark yourself as eligible to carry a pregnancy, regardless of sex. If you are ever the male partner in a couple where a real pregnancy occurs and no other rule decides otherwise, you will carry it instead."
+ mpreg_become_carrier_decision_desc:0 "Mark yourself as eligible to carry your own pregnancy. Each month, you may independently conceive with a spouse or lover, entirely separate from any pregnancy they might have of their own."
  mpreg_become_carrier_decision_tooltip:0 "Mark yourself as a carrier."
  mpreg_become_carrier_decision_confirm:0 "Become a Carrier"
 

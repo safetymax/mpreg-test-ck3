@@ -2,7 +2,7 @@
 # MPREG - Male Pregnancy -- on_action hooks
 # File: common/on_action/mpreg_on_actions.txt
 #
-# All four blocks below reopen real vanilla on_actions and add to their
+# The two blocks below reopen real vanilla on_actions and add to their
 # `events = { }` list only. Unlike scripted_triggers/gene templates/portrait
 # modifier groups (Lesson 2, Lesson 11), on_action event lists are the one
 # database in this project confirmed by Paradox's own documented modding
@@ -10,13 +10,20 @@
 # every other mod that adds a wedding/birth reaction does exactly this.
 # Not redeclaring anything else about these on_actions, so nothing vanilla
 # already registered on them can be lost.
+#
+# Lesson 32: on_pregnancy_mother and on_birth_mother used to be hooked here
+# too, firing mpreg.0001/mpreg.0003 (the old mixed-sex "redirect" system,
+# removed -- see events/mpreg_events.txt). A real vanilla female pregnancy
+# needs no hook of any kind anymore; it's entirely untouched, exactly as
+# unmodified vanilla, and a Carrier husband's own independent pregnancy runs
+# through on_marriage/on_set_relation_lover below like any other couple.
 ##############################################################################
 
 # common/on_action/marriage_concubinage.txt:4 -- fires after any live (non-historical) marriage.
 on_marriage = {
 	events = {
 		mpreg.0002 # grant secret_homosexual reliably to a same-sex couple
-		mpreg.0004 # start the male-male conception chain if this is a male-male marriage
+		mpreg.0004 # start the independent conception chain if either partner is male (Lesson 32)
 	}
 }
 
@@ -24,30 +31,6 @@ on_marriage = {
 # relation is set. root = the character who set it, scope:target = the new lover.
 on_set_relation_lover = {
 	events = {
-		mpreg.0005 # start the male-male conception chain if this is a male-male lover pair
-	}
-}
-
-# common/on_action/child_birth_on_actions.txt:1169 -- fires for the mother when a
-# pregnancy reaches "revealed" status. scope:mother is the pregnant one. Fires
-# ONCE per pregnancy (confirmed: no other script calls this on_action, and
-# vanilla's own pregnancy.0001 schedules the eventual birth event itself via
-# trigger_event rather than relying on this on_action firing again) -- so
-# mpreg.0001 below reschedules itself every 30 days to keep the carrier's
-# stage in sync for the rest of the pregnancy.
-on_pregnancy_mother = {
-	events = {
-		mpreg.0001 # redirect to a flagged male carrier spouse, if any; self-reschedules
-	}
-}
-
-# common/on_action/child_birth_on_actions.txt:8 -- fires for the mother the moment
-# birth actually resolves (covers the normal birth event AND the mother-dies
-# case, per that on_action's own events list). Used here purely for cleanup:
-# stops mpreg.0001's 30-day reschedule chain from lingering and clears the
-# carrier's redirected pregnancy immediately instead of waiting up to 30 days.
-on_birth_mother = {
-	events = {
-		mpreg.0003 # clear the redirected carrier's pregnancy state
+		mpreg.0005 # start the independent conception chain if either partner is male (Lesson 32)
 	}
 }
