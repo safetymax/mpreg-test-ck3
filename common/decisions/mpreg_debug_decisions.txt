@@ -1,0 +1,234 @@
+﻿##############################################################################
+# Male Pregnancy QoL -- debug/dev decisions
+# File: common/decisions/mpreg_debug_decisions.txt
+#
+# Hidden for the beta release (is_shown = { always = no } on every decision
+# below) -- these are dev/testing tools, not meant for normal play. Kept
+# functional rather than deleted, so a future dev session can flip
+# is_shown back to test something without having to rebuild this file from
+# memory. Stage tracking here uses var:mpreg_months directly (1/4/7), same
+# as everywhere else -- stage traits were removed for the beta, see
+# common/traits/mpreg_traits.txt.
+##############################################################################
+
+mpreg_start_test_decision = {
+    picture = {
+        reference = "gfx/interface/illustrations/decisions/decision_realm.dds"
+    }
+    desc = mpreg_start_test_decision_desc
+    selection_tooltip = mpreg_start_test_decision_tooltip
+    is_shown = {
+        always = no
+    }
+    is_valid = {
+        is_adult = yes
+    }
+    effect = {
+        add_trait = mp_pregnant
+        set_variable = {
+            name = mpreg_months
+            value = 1
+        }
+    }
+    ai_check_interval = 1
+    ai_potential = {
+        always = no
+    }
+}
+
+mpreg_stage_1_decision = {
+    picture = {
+        reference = "gfx/interface/illustrations/decisions/decision_realm.dds"
+    }
+    desc = mpreg_stage_1_decision_desc
+    selection_tooltip = mpreg_stage_1_decision_tooltip
+    is_shown = {
+        always = no
+    }
+    is_valid = {
+        has_trait = mp_pregnant
+    }
+    effect = {
+        set_variable = {
+            name = mpreg_months
+            value = 1
+        }
+    }
+    ai_check_interval = 1
+    ai_potential = {
+        always = no
+    }
+}
+
+mpreg_stage_2_decision = {
+    picture = {
+        reference = "gfx/interface/illustrations/decisions/decision_realm.dds"
+    }
+    desc = mpreg_stage_2_decision_desc
+    selection_tooltip = mpreg_stage_2_decision_tooltip
+    is_shown = {
+        always = no
+    }
+    is_valid = {
+        has_trait = mp_pregnant
+    }
+    effect = {
+        set_variable = {
+            name = mpreg_months
+            value = 4
+        }
+    }
+    ai_check_interval = 1
+    ai_potential = {
+        always = no
+    }
+}
+
+mpreg_stage_3_decision = {
+    picture = {
+        reference = "gfx/interface/illustrations/decisions/decision_realm.dds"
+    }
+    desc = mpreg_stage_3_decision_desc
+    selection_tooltip = mpreg_stage_3_decision_tooltip
+    is_shown = {
+        always = no
+    }
+    is_valid = {
+        has_trait = mp_pregnant
+    }
+    effect = {
+        set_variable = {
+            name = mpreg_months
+            value = 7
+        }
+    }
+    ai_check_interval = 1
+    ai_potential = {
+        always = no
+    }
+}
+
+mpreg_advance_month_decision = {
+    picture = {
+        reference = "gfx/interface/illustrations/decisions/decision_realm.dds"
+    }
+    desc = mpreg_advance_month_decision_desc
+    selection_tooltip = mpreg_advance_month_decision_tooltip
+    is_shown = {
+        always = no
+    }
+    is_valid = {
+        has_trait = mp_pregnant
+    }
+    effect = {
+        change_variable = {
+            name = mpreg_months
+            add = 1
+        }
+    }
+    ai_check_interval = 1
+    ai_potential = {
+        always = no
+    }
+}
+
+mpreg_clear_decision = {
+    picture = {
+        reference = "gfx/interface/illustrations/decisions/decision_realm.dds"
+    }
+    desc = mpreg_clear_decision_desc
+    selection_tooltip = mpreg_clear_decision_tooltip
+    is_shown = {
+        always = no
+    }
+    is_valid = {
+        has_trait = mp_pregnant
+    }
+    effect = {
+        remove_trait = mp_pregnant
+        remove_variable = mpreg_months
+    }
+    ai_check_interval = 1
+    ai_potential = {
+        always = no
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Debug: read-only status report. Was "always shown"; now hidden for the
+# beta like everything else in this file.
+#
+# Confirming a trait is present is not the same as confirming the gene
+# value it's supposed to drive is actually reaching the portrait -- there
+# is no script trigger to read a raw gene/morph value directly, so this
+# can't fully prove the visual is correct. It can only prove the script
+# side of the mod (traits, variable) is behaving as expected.
+# ---------------------------------------------------------------------------
+mpreg_debug_status_decision = {
+    picture = {
+        reference = "gfx/interface/illustrations/decisions/decision_realm.dds"
+    }
+    desc = mpreg_debug_status_decision_desc
+    selection_tooltip = mpreg_debug_status_decision_tooltip
+    # Reverted to always = no -- the "use this on the child" plan from
+    # Lesson 23 was based on a wrong assumption: CK3 decisions ALWAYS run
+    # on root (yourself), there is no way to select a different character
+    # and use a decision "on" them (that's what interactions are for, see
+    # mpreg_carrier_interactions.txt). The mother/father/real_father checks
+    # below are only ever useful when run on a character to check their
+    # OWN parents, not someone else's -- confirmed a real design mistake,
+    # not just an untested detail. See Lesson 25: the parentage bug itself
+    # was independently confirmed a different way (real UI: the child
+    # didn't count as a valid heir), so this never ended up being needed
+    # for that specific question, but the mistake is worth remembering.
+    is_shown = {
+        always = no
+    }
+    is_valid = {
+        always = yes
+    }
+    effect = {
+        custom_tooltip = mpreg_debug_status_header_tt
+        if = {
+            limit = { has_trait = mp_pregnant }
+            custom_tooltip = mpreg_debug_status_has_mp_pregnant_tt
+        }
+        else = {
+            custom_tooltip = mpreg_debug_status_no_mp_pregnant_tt
+        }
+        if = {
+            limit = { has_variable = mpreg_months }
+            custom_tooltip = mpreg_debug_status_has_months_tt
+        }
+        else = {
+            custom_tooltip = mpreg_debug_status_no_months_tt
+        }
+        # Real recorded parentage -- use this on the CHILD, not the
+        # carrier, to check what create_character actually set.
+        if = {
+            limit = { exists = mother }
+            custom_tooltip = mpreg_debug_status_has_mother_tt
+        }
+        else = {
+            custom_tooltip = mpreg_debug_status_no_mother_tt
+        }
+        if = {
+            limit = { exists = father }
+            custom_tooltip = mpreg_debug_status_has_father_tt
+        }
+        else = {
+            custom_tooltip = mpreg_debug_status_no_father_tt
+        }
+        if = {
+            limit = { exists = real_father }
+            custom_tooltip = mpreg_debug_status_has_real_father_tt
+        }
+        else = {
+            custom_tooltip = mpreg_debug_status_no_real_father_tt
+        }
+    }
+    ai_check_interval = 1
+    ai_potential = {
+        always = no
+    }
+}

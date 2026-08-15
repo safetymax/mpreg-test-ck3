@@ -1,0 +1,80 @@
+﻿l_english:
+ trait_mp_pregnant:0 "Pregnant"
+ trait_mp_pregnant_desc:0 "This character is carrying a pregnancy."
+
+ # --- Portrait modifier loc (engine expects PORTRAIT_MODIFIER_<group>_<entry>) ---
+ PORTRAIT_MODIFIER_mpreg_clothes_special_mpreg_nudity_pregnant:0 "MPreg Test Outfit"
+
+ mpreg_start_test_decision:0 "Start MPreg Test"
+ mpreg_start_test_decision_desc:0 "Start the simulated pregnancy."
+ mpreg_start_test_decision_tooltip:0 "Start the test."
+ mpreg_start_test_decision_confirm:0 "Start"
+
+ mpreg_stage_1_decision:0 "Set Belly: Stage 1"
+ mpreg_stage_1_decision_desc:0 "Set the early pregnancy belly."
+ mpreg_stage_1_decision_tooltip:0 "Set Stage 1."
+ mpreg_stage_1_decision_confirm:0 "Set"
+
+ mpreg_stage_2_decision:0 "Set Belly: Stage 2"
+ mpreg_stage_2_decision_desc:0 "Set the mid pregnancy belly."
+ mpreg_stage_2_decision_tooltip:0 "Set Stage 2."
+ mpreg_stage_2_decision_confirm:0 "Set"
+
+ mpreg_stage_3_decision:0 "Set Belly: Stage 3"
+ mpreg_stage_3_decision_desc:0 "Set the full pregnancy belly."
+ mpreg_stage_3_decision_tooltip:0 "Set Stage 3."
+ mpreg_stage_3_decision_confirm:0 "Set"
+
+ mpreg_advance_month_decision:0 "Advance Pregnancy 1 Month"
+ mpreg_advance_month_decision_desc:0 "Advance the simulated pregnancy by one month."
+ mpreg_advance_month_decision_tooltip:0 "Advance one month."
+ mpreg_advance_month_decision_confirm:0 "Advance"
+
+ mpreg_clear_decision:0 "Clear MPreg Test"
+ mpreg_clear_decision_desc:0 "Remove the simulated pregnancy."
+ mpreg_clear_decision_tooltip:0 "Clear the test."
+ mpreg_clear_decision_confirm:0 "Clear"
+
+ mpreg_debug_status_decision:0 "DEBUG: MPreg Status Report"
+ mpreg_debug_status_decision_desc:0 "Shows the current trait and variable state for this character, without changing anything. Hover the tooltip before confirming -- this decision does nothing when confirmed either way."
+ mpreg_debug_status_decision_tooltip:0 "Check the tooltip for current status."
+ mpreg_debug_status_decision_confirm:0 "Close"
+ mpreg_debug_status_header_tt:0 "#Y MPreg Debug Status:#!"
+ mpreg_debug_status_has_mp_pregnant_tt:0 "#green mp_pregnant: present#!"
+ mpreg_debug_status_no_mp_pregnant_tt:0 "#red mp_pregnant: NOT present#!"
+ mpreg_debug_status_has_months_tt:0 "#green mpreg_months variable: set#!"
+ mpreg_debug_status_no_months_tt:0 "#red mpreg_months variable: NOT set#!"
+ mpreg_debug_status_has_mother_tt:0 "#green mother: [ROOT.Char.GetMother.GetFirstName]#!"
+ mpreg_debug_status_no_mother_tt:0 "#red mother: NOT set#!"
+ mpreg_debug_status_has_father_tt:0 "#green father: [ROOT.Char.GetFather.GetFirstName]#!"
+ mpreg_debug_status_no_father_tt:0 "#red father: NOT set#!"
+ mpreg_debug_status_has_real_father_tt:0 "#green real_father: [ROOT.Char.GetRealFather.GetFirstName]#!"
+ mpreg_debug_status_no_real_father_tt:0 "#red real_father: NOT set#!"
+
+ PORTRAIT_MODIFIER_mpreg_pregnant_stage_1:0 "Early Pregnancy"
+ PORTRAIT_MODIFIER_mpreg_pregnant_stage_2:0 "Mid Pregnancy"
+ PORTRAIT_MODIFIER_mpreg_pregnant_stage_3:0 "Late Pregnancy"
+ PORTRAIT_MODIFIER_mpreg_hide_female_pregnancy_mpreg_hide_belly:0 "MPreg Hidden Belly"
+
+ trait_mp_carrier:0 "Carrier"
+ trait_mp_carrier_desc:0 "This character has chosen to be eligible to carry a pregnancy, regardless of sex."
+
+ mpreg_become_carrier_decision:0 "Become a Carrier"
+ mpreg_become_carrier_decision_desc:0 "Mark yourself as eligible to carry a pregnancy, regardless of sex. If you are ever the male partner in a couple where a real pregnancy occurs and no other rule decides otherwise, you will carry it instead."
+ mpreg_become_carrier_decision_tooltip:0 "Mark yourself as a carrier."
+ mpreg_become_carrier_decision_confirm:0 "Become a Carrier"
+
+ mpreg_stop_carrier_decision:0 "Stop Being a Carrier"
+ mpreg_stop_carrier_decision_desc:0 "Remove your carrier eligibility."
+ mpreg_stop_carrier_decision_tooltip:0 "Remove the carrier marker."
+ mpreg_stop_carrier_decision_confirm:0 "Stop"
+
+ mpreg_birth_notification_title:0 "A Child is Born"
+ mpreg_birth_notification_desc:0 "[ROOT.Char.GetFirstName] has given birth to [mpreg_child.GetFirstName], a healthy child."
+ mpreg_birth_notification_confirm:0 "Wonderful"
+
+ mpreg_force_carrier_interaction:0 "Force to Become a Carrier"
+ mpreg_force_carrier_interaction_desc:0 "Order [recipient.GetShortUINameNoTooltip] to become eligible to carry a pregnancy, regardless of their wishes."
+
+ mpreg_forbid_carrier_interaction:0 "Forbid from Being a Carrier"
+ mpreg_forbid_carrier_interaction_desc:0 "Forbid [recipient.GetShortUINameNoTooltip] from being eligible to carry a pregnancy. They will not be able to volunteer again until someone forces them to."

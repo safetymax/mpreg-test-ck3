@@ -1,0 +1,107 @@
+﻿##############################################################################
+# Male Pregnancy QoL -- Carrier role toggle
+# File: common/decisions/mpreg_carrier_decisions.txt
+#
+# Player-facing (not debug-gated) decisions to mark/unmark a character as
+# eligible to carry a pregnancy via the mp_carrier trait. See Lesson 12 in
+# README.md for how this feeds the real-conception redirect.
+#
+# AI potential/weighting added (previously ai_potential = { always = no },
+# meaning AI never used either decision at all -- confirmed the real cause
+# of "no naturally occurring gay marriages/pregnancies" observed in
+# testing, at least for this half of the pipeline). Gated to is_male = yes
+# for AI specifically (not is_valid, which stays open to any sex for the
+# player) because mp_carrier is only ever functionally consumed by a male
+# character today -- both mpreg.0001's mixed-couple redirect and
+# mpreg.0006's male-male system filter candidates on is_male = yes when
+# picking a carrier (events/mpreg_events.txt) -- so a female AI character
+# flagging herself would be flagging a trait that can never actually do
+# anything, just clutter. Real ai_will_do/modifier syntax confirmed from
+# vanilla's own decisions (e.g. common/decisions/00_fp3_decisions.txt),
+# base + additive modifier blocks. Age thresholds (30/40) are the design
+# values given directly, not derived from anything vanilla.
+#
+# Also now gated on NOT has_character_flag = mpreg_carrier_forbidden --
+# see common/character_interactions/mpreg_carrier_interactions.txt for
+# where that flag gets set/cleared (the Force/Forbid Carrier interactions).
+##############################################################################
+
+mpreg_become_carrier_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_realm.dds"
+	}
+	desc = mpreg_become_carrier_decision_desc
+	selection_tooltip = mpreg_become_carrier_decision_tooltip
+	is_shown = {
+		is_adult = yes
+		NOT = { has_trait = mp_carrier }
+		NOT = { has_character_flag = mpreg_carrier_forbidden }
+	}
+	is_valid = {
+		is_adult = yes
+		NOT = { has_trait = mp_carrier }
+		NOT = { has_character_flag = mpreg_carrier_forbidden }
+	}
+	effect = {
+		add_trait = mp_carrier
+	}
+	ai_check_interval = 1
+	ai_potential = {
+		is_male = yes
+		NOT = { has_character_flag = mpreg_carrier_forbidden }
+	}
+	ai_will_do = {
+		base = 0
+		modifier = {
+			add = 50
+			age <= 30
+		}
+		modifier = {
+			add = 25
+			age > 30
+			age <= 40
+		}
+		modifier = {
+			add = -50
+			age > 40
+		}
+	}
+}
+
+mpreg_stop_carrier_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_realm.dds"
+	}
+	desc = mpreg_stop_carrier_decision_desc
+	selection_tooltip = mpreg_stop_carrier_decision_tooltip
+	is_shown = {
+		has_trait = mp_carrier
+	}
+	is_valid = {
+		has_trait = mp_carrier
+	}
+	effect = {
+		remove_trait = mp_carrier
+	}
+	ai_check_interval = 1
+	ai_potential = {
+		is_male = yes
+		has_trait = mp_carrier
+	}
+	ai_will_do = {
+		base = 0
+		modifier = {
+			add = -50
+			age <= 30
+		}
+		modifier = {
+			add = -25
+			age > 30
+			age <= 40
+		}
+		modifier = {
+			add = 50
+			age > 40
+		}
+	}
+}

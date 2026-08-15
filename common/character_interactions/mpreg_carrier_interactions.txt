@@ -1,0 +1,121 @@
+﻿##############################################################################
+# Male Pregnancy QoL -- Force/Forbid Carrier interactions
+# File: common/character_interactions/mpreg_carrier_interactions.txt
+#
+# First-pass, unconditional version -- no acceptance/hooks/gold/influence
+# mechanic yet (explicitly deferred per design decision). auto_accept = yes
+# for both, matching real vanilla direct-order interactions with the same
+# shape (no scheme, no negotiation): grant_court_position and
+# make_concubine_interaction, common/character_interactions/00_vassal_interactions.txt
+# and 00_marriage_interactions.txt. Full interaction field reference read
+# from common/character_interactions/_character_interactions.info before
+# writing any of this.
+#
+# Targeting restricted to liege-over-vassal/courtier or close family (per
+# design decision), using the `?=` soft-comparison operator for
+# liege/employer (confirmed real usage, grant_court_position's own
+# `liege ?= scope:actor`) so it doesn't error for recipients with no liege
+# (independent rulers) or no employer (landed characters, who don't have
+# one).
+#
+# "Forbid" is a persistent block: a character FLAG
+# (mpreg_carrier_forbidden), not a trait -- deliberately, to avoid the "no
+# real hidden trait" problem from Lesson 17 (flags don't show anywhere in
+# the character's trait list; this is purely a backend gate). It's wired
+# into mpreg_carrier_decisions.txt's Become a Carrier decision so it
+# blocks both the player and AI from re-flagging mp_carrier until someone
+# uses Force, which deliberately clears the forbidden flag (Force
+# overrides an existing Forbid; this mod doesn't add a separate "lift the
+# forbid" action, Force already serves that purpose). Forbid itself is
+# blocked while the target is already pregnant (is_valid excludes
+# has_trait = mp_pregnant) -- forcibly ending an active pregnancy is a
+# much bigger, separate design decision this doesn't attempt.
+#
+# Icon: no vanilla icon exists for "forbid" specifically (checked
+# gfx/interface/icons/character_interactions/ directly rather than
+# guessing/leaving it to default to a missing file); demand_obedience.dds
+# is a real vanilla icon that reads reasonably for both directions (both
+# are commands about carrier status), reused for both rather than
+# shipping with a broken/missing icon.
+##############################################################################
+
+mpreg_force_carrier_interaction = {
+	category = interaction_category_diplomacy
+	icon = demand_obedience
+
+	desc = mpreg_force_carrier_interaction_desc
+
+	is_shown = {
+		NOT = { scope:recipient = scope:actor }
+		scope:recipient = {
+			is_male = yes
+			is_adult = yes
+			NOT = { has_trait = mp_carrier }
+		}
+		OR = {
+			scope:recipient = { liege ?= scope:actor }
+			scope:recipient = { employer ?= scope:actor }
+			scope:recipient = { is_close_family_of = scope:actor }
+		}
+	}
+
+	is_valid_showing_failures_only = {
+		scope:recipient = {
+			NOT = { is_imprisoned_by = scope:actor }
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			add_trait = mp_carrier
+			remove_character_flag = mpreg_carrier_forbidden
+		}
+	}
+
+	auto_accept = yes
+
+	ai_will_do = {
+		base = 0
+	}
+}
+
+mpreg_forbid_carrier_interaction = {
+	category = interaction_category_diplomacy
+	icon = demand_obedience
+
+	desc = mpreg_forbid_carrier_interaction_desc
+
+	is_shown = {
+		NOT = { scope:recipient = scope:actor }
+		scope:recipient = {
+			is_male = yes
+			is_adult = yes
+			NOT = { has_character_flag = mpreg_carrier_forbidden }
+		}
+		OR = {
+			scope:recipient = { liege ?= scope:actor }
+			scope:recipient = { employer ?= scope:actor }
+			scope:recipient = { is_close_family_of = scope:actor }
+		}
+	}
+
+	is_valid_showing_failures_only = {
+		scope:recipient = {
+			NOT = { is_imprisoned_by = scope:actor }
+			NOT = { has_trait = mp_pregnant }
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			remove_trait = mp_carrier
+			add_character_flag = mpreg_carrier_forbidden
+		}
+	}
+
+	auto_accept = yes
+
+	ai_will_do = {
+		base = 0
+	}
+}

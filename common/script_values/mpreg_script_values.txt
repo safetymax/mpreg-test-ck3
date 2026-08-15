@@ -1,0 +1,25 @@
+﻿##############################################################################
+# Male Pregnancy QoL -- Male-male conception odds
+# File: common/script_values/mpreg_script_values.txt
+#
+# Mirrors vanilla's REAL monthly conception formula verbatim (confirmed
+# straight from common/defines/00_defines.txt, not guessed):
+#   FERTILITY_CHANCE_MULTIPLIER = 4.75
+#   MIN_FERTILITY_CHANCE = 1
+#   MAX_FERTILITY_CHANCE = 25
+#   "Fertility is an average between the father and the mother ... this
+#   number is then multiplied by this multiplier to produce the percentage
+#   chance of impregnation. Impregnation is checked every month."
+# scope:mpreg_carrier and scope:mpreg_other_father must already be saved
+# (see events/mpreg_events.txt: mpreg.0006) before this is evaluated.
+##############################################################################
+
+mpreg_ss_conception_chance = {
+	value = 0
+	add = scope:mpreg_carrier.fertility
+	add = scope:mpreg_other_father.fertility
+	divide = 2
+	multiply = 4.75
+	min = 1
+	max = 25
+}

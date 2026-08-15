@@ -1,0 +1,22 @@
+## Male Pregnancy QoL -- save-compatibility trait conversion
+## File: common/traits/mpreg_trait_conversion.lookup
+##
+## v0.23 deleted mp_pregnant_stage_1/2/3 entirely (see README Lesson 17 --
+## CK3 traits have no real "hidden" field, so stage tracking moved to
+## var:mpreg_months instead). Any save from an earlier version can have
+## characters currently holding one of those now-undefined trait keys,
+## which would otherwise be an unrecognized trait on load. This maps them
+## to mp_pregnant (which those characters already also hold, since the
+## stage trait was always added alongside it -- see events/mpreg_events.txt
+## and common/decisions/mpreg_debug_decisions.txt, current and historical),
+## so the conversion is a harmless no-op re-add rather than a real change.
+## Real mechanism confirmed from common/traits/_traits.info: "old_trait_indexes.lookup
+## contains the ordered list of named traits... trait_conversion.lookup
+## contains a mapping between an old trait name key to its new trait name
+## key... Use this to help with converting save game versions." Format
+## confirmed from vanilla's own real file, common/traits/trait_conversion.lookup
+## (e.g. "mystic_1 = lifestyle_mystic").
+
+mp_pregnant_stage_1 = mp_pregnant
+mp_pregnant_stage_2 = mp_pregnant
+mp_pregnant_stage_3 = mp_pregnant

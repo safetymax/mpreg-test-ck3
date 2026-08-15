@@ -1,0 +1,89 @@
+﻿##############################################################################
+# Male Pregnancy QoL -- Forced clothing for pregnant characters
+# File: gfx/portraits/portrait_modifiers/mpreg_clothes_test.txt
+#
+# ROOT CAUSE of the original test not showing up (found by reading vanilla's
+# real files directly, gfx/portraits/portrait_modifiers/ and
+# common/scripted_triggers/00_clothing_triggers.txt):
+#
+# 1. should_show_nudity is NOT a hard content-safety gate. It's just a
+#    plain script trigger (a synced reflection of the client's "Show
+#    Nudity" interface setting) that vanilla's OWN no_clothes entry
+#    happens to reference inside its own weight block (-1000 when the
+#    setting is off). It carries no special engine enforcement and does
+#    nothing to entries that don't reference it -- confirmed by reading
+#    settings_l_english.yml (SETTING_SHOW_NUDITY) and the accessory
+#    definition itself (gfx/portraits/accessories/clothes.txt), which has
+#    no nudity/content flag at all. This theory from the original test
+#    file header was wrong; ruled out.
+#
+# 2. The REAL problem: this file reopened vanilla's existing "clothes_special"
+#    *group* from a second file instead of declaring its own group, which
+#    is a mechanism this project had never actually confirmed works for
+#    portrait_modifiers specifically (as opposed to gene templates, where
+#    Lesson 2 already proved reopening a *specific entry* silently
+#    replaces it). Every other confirmed-working piece of this mod
+#    (mpreg_visual_pregnancy, mpreg_cloak_clearance) is its OWN new
+#    top-level group, never a reopen of a vanilla one -- this clothing
+#    test was the only place attempting that pattern, and it was never
+#    verified to actually merge.
+#
+# 3. Priority matters and was being inherited implicitly. Confirmed by
+#    reading every real vanilla clothes group's priority value directly:
+#      clothes_base = 1, clothes_religious = 3, clothes_sickness = 3,
+#      clothes_armor = 4, clothes_situational = 5, clothes_special = 6.
+#    "The higher the priority, the later the modifier is applied (and
+#    overwrites previous ones)" (_portrait_modifiers.info). clothes_special
+#    is the highest-priority clothing group in vanilla, which is exactly
+#    why the original file targeted it. Our own new group must set an
+#    explicit priority >= 6 to reliably overwrite normal clothing,
+#    or it silently defaults to priority 0 and loses to everything.
+#
+# THE FIX: stop reopening clothes_special. Declare a brand-new,
+# mod-owned group instead (same additive-not-replacing pattern that
+# already works for the belly/cloak files), with an explicit
+# priority = 7 (one above vanilla's highest clothing priority) and
+# ignore_outfit_tags = yes (same as every other confirmed-working
+# entry in this mod -- removes any dependency on the outfit-tag/event
+# context a normal character-window portrait may or may not supply).
+#
+# Reference pattern this was checked against: vanilla's own
+# gfx/portraits/portrait_modifiers/05_clothes_situational.txt
+# charioteer_blue/pope_larper/cardinal_larper entries -- a plain
+# has_trait/has_character_flag check inside a clothes group, weight
+# ~200-1000, no outfit_tags needed, and it reliably forces clothing in
+# vanilla. Our weight (100000) and mechanism now match that shape.
+##############################################################################
+
+mpreg_clothes_special = {
+
+	usage = game
+	selection_behavior = weighted_random
+	priority = 7
+
+	mpreg_nudity_pregnant = {
+		ignore_outfit_tags = yes
+		dna_modifiers = {
+			accessory = {
+				mode = add
+				gene = clothes
+				template = no_clothes
+				range = { 0 1 }
+			}
+			accessory = {
+				mode = add
+				gene = cloaks
+				template = no_cloak
+				range = { 0 1 }
+			}
+		}
+		weight = {
+			base = 0
+			modifier = {
+				add = 100000
+				has_trait = mp_pregnant
+			}
+		}
+	}
+
+}

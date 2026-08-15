@@ -1,0 +1,65 @@
+﻿##############################################################################
+# Male Pregnancy QoL -- Genes
+# File: common/genes/mpreg_genes.txt
+#
+# CONFIRMED against the real vanilla file (08_genes_special_visual_traits.txt):
+#
+# special_genes = {
+# 	morph_genes = {
+# 		gene_bs_pregnant = {
+# 			pregnant = {
+# 				index = 0
+# 				female = {
+# 					setting = { attribute = "bs_body_pregnant_1"  value = { min = 0.0 max = 1.0 } }
+# 				}
+# 			}
+# 		}
+# 	}
+# }
+#
+# The "pregnant" template only ever defined a female setting -- there was
+# never a male one to find, which is the real reason nothing showed up
+# earlier, independent of every other issue we chased. Rather than invent
+# a new gene, this file reopens the same vanilla key and adds a male
+# block, reusing the exact same attribute name vanilla already uses for
+# the female belly.
+#
+# IMPORTANT: reopening a specific template like this fully REPLACES it
+# rather than merging field-by-field, so every field the template needs
+# (index, the original female block) has to be repeated verbatim here
+# alongside the new male block, or vanilla's own version silently breaks.
+# See the correction below -- learned this the hard way.
+#
+# This depends on the character's skeleton actually having a bone/channel
+# matching "bs_body_pregnant_1" -- which is exactly the piece that was
+# missing from the custom mesh's rig and has since been copied over from
+# the vanilla female pregnant armature.
+##############################################################################
+
+# CORRECTION: reopening "pregnant" with only a male block turned out to
+# fully replace the template rather than merge into it -- vanilla's index
+# and female block were silently dropped, which broke vanilla's own
+# female pregnancy display too (confirmed by error.log hitting
+# 99_special.txt and the female pregnancy bookmark preview). Fixed by
+# redeclaring the complete template, index and female block included
+# verbatim from vanilla, with our male block added alongside.
+
+special_genes = {
+	morph_genes = {
+
+		gene_bs_pregnant = {
+
+			pregnant = {
+				index = 0
+				female = {
+					setting = { attribute = "bs_body_pregnant_1"  value = { min = 0.0 max = 1.0 } }
+				}
+				male = {
+					setting = { attribute = "bs_body_pregnant_1"  value = { min = 0.0 max = 1.0 } }
+				}
+			}
+
+		}
+
+	}
+}

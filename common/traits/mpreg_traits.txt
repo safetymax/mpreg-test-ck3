@@ -1,0 +1,54 @@
+﻿##############################################################################
+# Male Pregnancy QoL -- Traits
+# File: common/traits/mpreg_traits.txt
+#
+# Two traits: mp_pregnant (drives the pregnancy portrait/stage system) and
+# mp_carrier (a persistent "eligible to carry" role marker). See per-trait
+# comments below for the reasoning behind each field.
+##############################################################################
+
+# icon = pregnant.dds reuses vanilla's own real trait icon
+# (gfx/interface/icons/traits/pregnant.dds) rather than showing no/default
+# icon -- confirmed real field from common/traits/_traits.info ("icon" is
+# one of the three overridable loc/icon parameters, default path
+# gfx/interface/icons/traits/<trait>.dds; ours doesn't match our trait key
+# so needs the explicit override).
+mp_pregnant = {
+    category = health
+    valid_sex = all
+    minimum_age = 16
+    icon = "pregnant.dds"
+}
+
+# Stage tracking (early/mid/late) intentionally does NOT use separate
+# traits anymore. CK3 traits have no real "hidden from character screen"
+# field -- confirmed directly from common/traits/_traits.info, which only
+# documents shown_in_encyclopedia and shown_in_ruler_designer, neither of
+# which controls the character's own trait list. The var:mpreg_months
+# variable (already set alongside every stage transition, see
+# events/mpreg_events.txt and common/decisions/mpreg_debug_decisions.txt)
+# carries the exact same information (1/4/7 = stage 1/2/3) and drives the
+# portrait modifier weights directly
+# (gfx/portraits/portrait_modifiers/mpreg_pregnancy.txt) -- genuinely
+# invisible to the player, not just cosmetically hidden.
+
+# Persistent marker: "this character is eligible to carry a pregnancy"
+# (independent of vanilla sex-based assumptions). Purely a role marker --
+# no mechanical effect of its own. Toggled via
+# common/decisions/mpreg_carrier_decisions.txt (self) or
+# common/character_interactions/mpreg_carrier_interactions.txt (someone
+# else, Lesson 22). Actually consumed by events/mpreg_events.txt's
+# mpreg.0001 (mixed-couple redirect) and mpreg.0006 (male-male conception),
+# both of which only ever pick a carrier where is_male = yes -- see
+# Lesson 14 for why AI use of mp_carrier is gated to males only.
+# icon = fecund.dds reuses vanilla's real "fecund" trait icon
+# (gfx/interface/icons/traits/fecund.dds) -- fecund is vanilla's own
+# high-fertility trait (common/traits/00_traits.txt:7725, opposite of
+# infertile), a natural thematic fit for "eligible to bear children"
+# pending a dedicated custom icon later.
+mp_carrier = {
+    category = personality
+    valid_sex = all
+    minimum_age = 16
+    icon = "fecund.dds"
+}

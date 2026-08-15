@@ -1,0 +1,39 @@
+﻿##############################################################################
+# Male Pregnancy QoL -- Marriage trigger override
+# File: common/scripted_triggers/mpreg_marriage_triggers.txt
+#
+# Full verbatim redeclaration of vanilla's real "allowed_to_marry_same_sex_trigger"
+# (common/scripted_triggers/00_marriage_triggers.txt:63-71). Scripted triggers
+# are flat named macros with no cross-file merge -- reopening one with the
+# same name fully REPLACES the old definition (same rule as Lesson 2 in
+# README.md, confirmed for scripted_triggers specifically). This is
+# deliberate here: we WANT to fully replace it.
+#
+# Original vanilla body:
+#   allowed_to_marry_same_sex_trigger = {
+#       has_game_rule = accepted_same_sex_marriage
+#       faith = {
+#           NOR = {
+#               has_doctrine_parameter = homosexuality_shunned
+#               has_doctrine_parameter = homosexuality_illegal
+#           }
+#       }
+#   }
+#
+# Change: drop the doctrine NOR block entirely. Marriage becomes possible
+# for ANY faith once the game rule is active (defaulted on by
+# mpreg_game_rules.txt), regardless of whether that faith considers
+# homosexuality shunned or illegal -- per design decision, neither should
+# fully block the marriage from happening. The doctrine distinction isn't
+# lost, though: it still drives real, differentiated consequences through
+# vanilla's own secret_homosexual secret type
+# (common/secret_types/00_secret_types.txt:45-79), whose is_shunned/
+# is_criminal checks already key off these exact two doctrine parameters
+# (common/scripted_triggers/00_secret_type_triggers.txt:45-61). See
+# mpreg_on_actions.txt / mpreg_events.txt for how that secret gets granted
+# reliably on a same-sex marriage instead of waiting on random flavor events.
+##############################################################################
+
+allowed_to_marry_same_sex_trigger = {
+	has_game_rule = accepted_same_sex_marriage
+}

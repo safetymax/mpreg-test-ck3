@@ -1,0 +1,35 @@
+﻿##############################################################################
+# Male Pregnancy QoL -- Game rule default override
+# File: common/game_rules/mpreg_game_rules.txt
+#
+# Full verbatim redeclaration of vanilla's real "same_sex_marriage" game
+# rule (common/game_rules/00_game_rules.txt), changing only the `default`
+# field from `default_same_sex_marriage` to `accepted_same_sex_marriage`.
+# Reopening and redeclaring only PART of a specific named entry silently
+# drops the rest (see Lesson 2 in README.md), so every field vanilla
+# declares here is repeated verbatim.
+#
+# Deliberately NOT touching the separate "same_sex_relations" game rule.
+# Its effect (game_rule_accepted_same_sex_relations_effect,
+# common/scripted_effects/00_game_rule_effects.txt:765) strips the
+# homosexuality doctrine from every faith in the world at game start,
+# which would destroy the shunned/illegal distinction this mod deliberately
+# preserves (see mpreg_marriage_triggers.txt). Wrong tool for this job.
+##############################################################################
+
+same_sex_marriage = {
+
+	categories = {
+		game_modes
+	}
+
+	default = accepted_same_sex_marriage
+
+	default_same_sex_marriage = {
+
+	}
+
+	accepted_same_sex_marriage = {
+		flag = blocks_achievements
+	}
+}
