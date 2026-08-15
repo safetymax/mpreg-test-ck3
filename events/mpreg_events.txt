@@ -73,8 +73,29 @@ mpreg.0001 = {
 				# threw "Unknown effect: any_spouse" and corrupted parsing of
 				# everything declared later in this file (confirmed from a
 				# real error.log, not guessed -- see README Lesson 15).
+				#
+				# Lesson 31: NOT has_variable = mpreg_ss_days added, real bug
+				# fix, not just the mitigation from Lesson 16/23. mp_pregnant
+				# and mpreg_months are shared state between this redirect
+				# system and the independent male-male conception system
+				# (mpreg.0006/0009/0007) -- a spouse who's independently
+				# gestating via the male-male system also has mp_pregnant,
+				# and without this guard he'd match here too, and this
+				# branch would forcibly overwrite HIS OWN mpreg_months to
+				# match his wife's pregnancy_days, corrupting an entirely
+				# unrelated pregnancy. var:mpreg_ss_days is only ever set by
+				# mpreg.0009 (the male-male system's own day tracker), so
+				# its presence reliably means "this mp_pregnant belongs to
+				# the other system, not this redirect" -- a plain number
+				# variable, has_variable is the correct check here (not the
+				# exists/stale-character-reference concern from Lesson 18,
+				# which only applies to variables storing character refs).
 				random_spouse = {
-					limit = { is_male = yes has_trait = mp_pregnant }
+					limit = {
+						is_male = yes
+						has_trait = mp_pregnant
+						NOT = { has_variable = mpreg_ss_days }
+					}
 					save_scope_as = mpreg_carrier
 				}
 				if = {
@@ -103,12 +124,27 @@ mpreg.0001 = {
 # pregnancy from any mp_carrier spouse immediately, rather than leaving him
 # visibly pregnant for up to 30 more days until mpreg.0001's own chain would
 # have noticed root.is_pregnant had gone false and stopped itself.
+#
+# Lesson 31: the real fix for the trait-collision bug (Lesson 16/23), found
+# from a live report -- a player whose wife gave birth had it silently
+# terminate his own, completely separate male-male pregnancy with someone
+# else. Root cause: this event used to clear mp_pregnant/mpreg_months off
+# ANY male spouse who had them, with no check for whose pregnancy it
+# actually was, since both systems share the same trait/variable. Same
+# `NOT has_variable = mpreg_ss_days` guard as mpreg.0001's sync branch
+# above -- only clear his redirected pregnancy if it's genuinely the
+# redirect system's, not a real, independent pregnancy that happens to
+# share the same trait.
 mpreg.0003 = {
 	type = character_event
 	hidden = yes
 	immediate = {
 		random_spouse = {
-			limit = { is_male = yes has_trait = mp_pregnant }
+			limit = {
+				is_male = yes
+				has_trait = mp_pregnant
+				NOT = { has_variable = mpreg_ss_days }
+			}
 			save_scope_as = mpreg_carrier
 		}
 		if = {

@@ -2,7 +2,7 @@
 
 As far as we know, this is the first working male pregnancy mod for CK3. Men can be flagged as carriers, conceive, visibly grow, and give birth, with real vanilla same-sex marriage support built in. It's a first release and still actively being worked on, so there are some known issues. Please read through this before installing.
 
-Current version: **1.0**
+Current version: **1.0.1**
 
 ## What this actually does
 
