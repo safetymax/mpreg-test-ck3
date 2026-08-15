@@ -27,7 +27,7 @@ This is an early beta, not a finished mod. A few things to know going in:
 
 - **Clothing doesn't fully adjust.** A pregnant male character is forced into a state resembling vanilla's own "no clothes" look, but legwear currently stays on. There's no dedicated maternity clothing yet. That's a known, deliberate trade-off for now, not an oversight.
 - **This is actively being developed and will have bugs.** Several real ones have already been found and fixed by testing in a live game, and more are likely, especially around edge cases (a character in two overlapping relationships, a parent dying mid-pregnancy, and similar). If something looks broken, please open an issue.
-- **When two fathers are involved, only the higher-titled one is recorded in genealogy.** This is a deliberate trade-off to avoid a real data-corruption risk in vanilla's own "disputed heritage" secret (see `CLAUDE.md` Lesson 28 for the full technical reasoning). The weaker parent keeps his gameplay role but isn't a recorded parent of the child. One known consequence: if the carrier ends up being the weaker-titled parent, he currently doesn't get the birth-naming prompt.
+- **When two fathers are involved, only the higher-titled one is recorded in genealogy.** This is a deliberate trade-off to avoid a real data-corruption risk in vanilla's own "disputed heritage" secret. The weaker parent keeps his gameplay role but isn't a recorded parent of the child. One known consequence: if the carrier ends up being the weaker-titled parent, he currently doesn't get the birth-naming prompt.
 - **Save compatibility across updates isn't guaranteed** during the beta. There's a conversion mechanism for known cases, but you should expect some rough edges if you update a mod version mid-save.
 
 ## Compatibility notes
@@ -49,18 +49,13 @@ gfx/                     Portrait modifiers, genes-driven visuals, and
 localization/            English text.
 descriptor.mod           Mod metadata (version, supported game version).
 README.md                This file, player-facing overview.
-CLAUDE.md                Full technical development log: root-cause
-                          debugging history, confirmed vanilla engine
-                          behaviors, and the current TODO/test list. Start
-                          here if you're contributing code.
-WORKSHOP_DESCRIPTION.md  The exact text used for the Steam Workshop page.
 ```
 
-Every script file has a header comment explaining what it does and why. See `CLAUDE.md` for the deeper reasoning and debugging history behind the less obvious choices (it's referenced by lesson number throughout the code's own comments).
+Every script file has a header comment explaining what it does and why, including the reasoning behind less obvious choices, so the code should be reasonably readable on its own.
 
 ## Contributing / reporting bugs
 
-Bug reports and feedback are genuinely welcome. Please open an issue with what you saw, your character's situation (same-sex marriage vs. mixed-couple redirect vs. male-male), and your game version. If you're looking to contribute code, read `CLAUDE.md` first. It documents several CK3 engine restrictions that look like bugs but are confirmed, hard engine limits (a male character cannot be recognized as "mother," for example), so you don't end up rediscovering them the hard way.
+Bug reports and feedback are genuinely welcome. Please open an issue with what you saw, your character's situation (same-sex marriage vs. mixed-couple redirect vs. male-male), and your game version. If you're looking to contribute code, read through the header comments in the relevant script files first. Several things that look like bugs are actually confirmed, hard CK3 engine limits (a male character cannot be recognized as "mother," for example), and those are called out where they matter.
 
 ## Credits / disclaimer
 
