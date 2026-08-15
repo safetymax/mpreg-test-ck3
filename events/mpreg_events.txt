@@ -379,8 +379,18 @@ mpreg.0009 = {
 				# itself now handles a missing/invalid father gracefully
 				# (see its own header comment, README Lesson 18), so birth
 				# always fires at term regardless.
-				limit = { var:mpreg_ss_days >= 280 }
-				trigger_event = mpreg.0007
+				#
+				# TEMPORARY DIAGNOSTIC (Lesson 29, v0.35): debug_trigger_event
+				# instead of trigger_event -- prints the target event's trigger
+				# fulfillment and immediate effects to the log. Two different
+				# fixes for the missing birth-notification popup (v0.33's
+				# delayed variable hand-off, v0.34's immediate scope-passthrough)
+				# produced the exact same symptom, which rules out timing/
+				# scope-carryover as the cause. Needs real evidence instead of
+				# a third guess -- revert to plain trigger_event once the real
+				# cause is confirmed from a -debug_mode test's debug.log/
+				# game.log output.
+				debug_trigger_event = mpreg.0007
 			}
 			else = {
 				trigger_event = { id = mpreg.0009 days = 30 }
@@ -543,7 +553,25 @@ mpreg.0007 = {
 		# exactly how vanilla's entire birth-flavor system works, not a
 		# guess. Matching that pattern here removes the delay, the
 		# persistent variable, and the later re-derivation in one pass.
-		trigger_event = mpreg.0008
+		#
+		# TEMPORARY DIAGNOSTIC (v0.35): a send_interface_toast fires right
+		# here, completely independent of the character_event/widget system
+		# that mpreg.0008 relies on -- a much simpler, lower-level real
+		# vanilla mechanism (confirmed syntax, effects.log: "Sends a message
+		# to the player playing the character in the scope"). If this toast
+		# shows up in a real test but the mpreg.0008 popup still doesn't,
+		# that proves this whole immediate block runs fine and isolates the
+		# bug specifically to mpreg.0008's own popup/widget rendering. If
+		# even the toast doesn't show, the problem is further upstream than
+		# previously assumed (this event, or the chain calling it, isn't
+		# actually running the way the missing error logs suggested).
+		send_interface_toast = {
+			title = mpreg_birth_notification_title
+			desc = mpreg_birth_notification_desc
+			left_icon = root
+			right_icon = scope:mpreg_child
+		}
+		debug_trigger_event = mpreg.0008
 	}
 }
 
