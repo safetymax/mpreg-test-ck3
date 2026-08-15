@@ -2,6 +2,9 @@ version="1.0.1"
 tags={
 	"Gameplay"
 	"Graphics"
+	"Character Interactions"
+	"Decisions"
+	"Events"
 }
 name="MPREG - Male Pregnancy"
 picture="thumbnail.png"
